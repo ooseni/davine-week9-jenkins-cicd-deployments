@@ -2,8 +2,10 @@
 #
 # Rolling update: one extra pod at a time (maxSurge 1) and never fewer than 3 ready
 # (maxUnavailable 0). A new pod only replaces an old one after its readiness probe passes, so a
-# release that cannot start leaves the old pods serving and the rollout stuck. After
-# progressDeadlineSeconds the Deployment reports the rollout as failed; the pipeline then rolls back.
+# release that cannot start leaves the old pods serving and the rollout stuck. The deploy script
+# fails fast when a new pod crash-loops; otherwise, after progressDeadlineSeconds (180 s, because
+# Kubernetes counts the image download against it), the Deployment reports the rollout as failed.
+# Either way the pipeline then rolls back.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,7 +20,7 @@ metadata:
 spec:
   replicas: 3
   revisionHistoryLimit: 10
-  progressDeadlineSeconds: 60
+  progressDeadlineSeconds: 180
   minReadySeconds: 3
   strategy:
     type: RollingUpdate

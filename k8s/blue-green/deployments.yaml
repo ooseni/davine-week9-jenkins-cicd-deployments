@@ -21,7 +21,7 @@ metadata:
 spec:
   replicas: 0
   revisionHistoryLimit: 5
-  progressDeadlineSeconds: 60
+  progressDeadlineSeconds: 180
   selector:
     matchLabels:
       app: davine-webapp-bg
@@ -110,7 +110,7 @@ metadata:
 spec:
   replicas: 0
   revisionHistoryLimit: 5
-  progressDeadlineSeconds: 60
+  progressDeadlineSeconds: 180
   selector:
     matchLabels:
       app: davine-webapp-bg

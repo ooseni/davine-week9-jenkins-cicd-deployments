@@ -19,7 +19,7 @@ NODE_HOST="${DAVINE_NODE_HOST:-localhost}"
 APP_URL="${APP_URL:-http://$NODE_HOST:30080}"
 BG_LIVE_URL="${BG_LIVE_URL:-http://$NODE_HOST:30081}"
 BG_PREVIEW_URL="${BG_PREVIEW_URL:-http://$NODE_HOST:30082}"
-ROLLOUT_TIMEOUT="${ROLLOUT_TIMEOUT:-150s}"
+ROLLOUT_TIMEOUT="${ROLLOUT_TIMEOUT:-300s}"
 
 log() { printf '[%s] %s\n' "$(date -u +%H:%M:%S)" "$*"; }
 die() { log "ERROR: $*" >&2; exit 1; }
@@ -101,6 +101,37 @@ ensure_pull_secret() {
     log "pull secret ecr-pull refreshed for $REGISTRY_SERVER"
 }
 
+# --- Waiting for a rollout ----------------------------------------------------------------------
+# wait_for_rollout DEPLOYMENT SELECTOR: 0 when the rollout completes, 1 when it cannot.
+# Kubernetes counts image pulls against progressDeadlineSeconds, and the first pull of a new base
+# image from ECR took 1 min 39 s on this connection, so the deadline is a generous 180 s. A release
+# that is really broken is caught sooner: as soon as one of its pods crash-loops (2 restarts) or
+# cannot get its image, the wait stops and the pipeline can roll back.
+wait_for_rollout() {
+    local deployment=$1 selector=$2 started=$SECONDS out last="" broken
+    local limit=${ROLLOUT_TIMEOUT_SECONDS:-300}
+    while ((SECONDS - started < limit)); do
+        if ! out=$(kc rollout status "deployment/$deployment" --watch=false 2>&1); then
+            echo "$out" # for example: exceeded its progress deadline
+            return 1
+        fi
+        [[ "$out" != "$last" ]] && echo "$out" && last=$out
+        [[ "$out" == *"successfully rolled out"* ]] && return 0
+        broken=$(kc get pods -l "$selector" -o json | jq -r '.items[] | .metadata.name as $pod
+            | .status.containerStatuses[]? | (.state.waiting.reason // "") as $why
+            | select(($why == "CrashLoopBackOff" and .restartCount >= 2)
+                or ($why | test("^(ImagePullBackOff|InvalidImageName|CreateContainerConfigError)$")))
+            | "\($pod) is in \($why) after \(.restartCount) restarts"' | head -1)
+        if [[ -n "$broken" ]]; then
+            log "failing fast: $broken"
+            return 1
+        fi
+        sleep 3
+    done
+    log "the rollout did not finish within $limit s"
+    return 1
+}
+
 # --- Why a rollout is stuck ---------------------------------------------------------------------
 # explain_rollout DEPLOYMENT SELECTOR: the pods, the Deployment's conditions and the last log
 # lines of a pod that is not ready. This is what turns "rollout failed" into a cause in the console.
@@ -119,6 +150,10 @@ explain_rollout() {
         lines=$(kc logs "$pod" --tail=5 --previous 2>/dev/null || kc logs "$pod" --tail=5 2>/dev/null || true)
         log "last log lines of $pod, which is not ready:"
         printf '%s\n' "${lines:-(no log lines yet)}" | sed 's/^/    /'
+        log "recent events of $pod (an image still downloading shows here):"
+        kc get events --field-selector "involvedObject.name=$pod" --sort-by=.lastTimestamp \
+            -o custom-columns=AGE:.lastTimestamp,REASON:.reason,MESSAGE:.message --no-headers 2>/dev/null |
+            tail -n 3 | sed 's/^/    /'
     fi
 }
 

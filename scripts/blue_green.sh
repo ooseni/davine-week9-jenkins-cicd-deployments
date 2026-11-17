@@ -107,7 +107,7 @@ deploy() {
     render_idle_overlay "$overlay" "$image" "$env_mode" "$idle" "$live" "$first"
     kubectl apply -k "$overlay"
     [[ "$first" == yes ]] || point davine-webapp-bg-preview "$idle"
-    if ! kc rollout status "deployment/davine-webapp-$idle" --timeout="$ROLLOUT_TIMEOUT"; then
+    if ! wait_for_rollout "davine-webapp-$idle" "app=davine-webapp-bg,slot=$idle"; then
         explain_rollout "davine-webapp-$idle" "app=davine-webapp-bg,slot=$idle"
         die "the $idle slot never became ready, so the switch was not made: users stayed on $live"
     fi

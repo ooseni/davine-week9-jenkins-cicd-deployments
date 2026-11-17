@@ -78,7 +78,7 @@ fi
 log "applying $image with ENV_MODE=$env_mode"
 kubectl apply -k "$overlay"
 rc=0
-if ! kc rollout status deployment/davine-webapp --timeout="$ROLLOUT_TIMEOUT"; then
+if ! wait_for_rollout davine-webapp app=davine-webapp; then
     rc=1
     log "the rollout did not complete; finding out why"
     explain_rollout davine-webapp app=davine-webapp
