@@ -1,0 +1,58 @@
+# The identity Jenkins deploys with. It can change the app in davine-space and nothing else: no
+# other namespace, no cluster-wide object, no deletes, no exec into pods, no NetworkPolicies, and
+# one secret only. scripts/cluster_up.sh gives Jenkins a 12-hour token for this account instead
+# of the cluster-admin kubeconfig.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins-deployer
+  namespace: davine-space
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jenkins-deployer
+  namespace: davine-space
+rules:
+  # Apply manifests, roll out, roll back and scale.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["get", "update", "patch"]
+  # `rollout status`, `rollout history` and `rollout undo` read the ReplicaSets.
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  # Only the registry pull secret, by name. The admin creates it (registry-pull-secret.yaml)
+  # because Kubernetes cannot limit `create` to one name; the deployer refreshes its token.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["ecr-pull"]
+    verbs: ["get", "update", "patch"]
+  # Read-only: which pods run which image, and why a rollout is stuck.
+  - apiGroups: [""]
+    resources: ["pods", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-deployer
+  namespace: davine-space
+subjects:
+  - kind: ServiceAccount
+    name: jenkins-deployer
+    namespace: davine-space
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: jenkins-deployer

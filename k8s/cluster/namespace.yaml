@@ -1,0 +1,10 @@
+# The namespace from week 7, now enforcing the "restricted" Pod Security Standard: a pod that
+# runs as root, keeps Linux capabilities or allows privilege escalation is refused at admission.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: davine-space
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted

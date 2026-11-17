@@ -1,0 +1,32 @@
+# Network rules for davine-space, applied by the cluster admin, so the deployer (which has no
+# permission on NetworkPolicies) cannot loosen them.
+#
+# 1. Deny everything, in and out, for every pod in the namespace.
+# 2. Let the app's pods (rolling and both blue-green slots) accept TCP 8080, the only port they
+#    serve. Users arrive through the NodePort Services; the kubelet's probes use the same port.
+# Nothing allows egress: the app calls nothing, so a compromised pod cannot reach out either.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: davine-space
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress", "Egress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: davine-webapp-http-in
+  namespace: davine-space
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: ["davine-webapp", "davine-webapp-bg"]
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
