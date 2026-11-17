@@ -1,0 +1,104 @@
+# Jenkins Configuration as Code. Loaded at every start, so the controller can be thrown away and
+# rebuilt identical. Values in ${...} come from files in /run/secrets (Docker secrets) or from
+# environment variables that scripts/jenkins_up.sh sets; none of them is stored in git.
+jenkins:
+  systemMessage: >-
+    davine-webapp delivery pipeline (Davine Technologies internship, week 9).
+    This controller is configured as code from jenkins/controller/casc/jenkins.yaml.
+
+  # Builds never run on the controller (week 5 ran them there with `agent any`).
+  numExecutors: 0
+  mode: EXCLUSIVE
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          name: Administrator
+          password: ${jenkins_admin_password}
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  # CSRF protection (the crumb issuer) is always on in current Jenkins; nothing to set.
+  remotingSecurity:
+    enabled: true
+  # The agent connects over WebSocket on the web port, so the separate TCP agent port stays closed.
+  slaveAgentPort: -1
+
+  nodes:
+    - permanent:
+        name: docker-agent
+        nodeDescription: >-
+          Build agent container with the Docker CLI and kubectl. It builds images through the
+          host's Docker engine and deploys to the k3d cluster as jenkins-deployer.
+        labelString: docker
+        mode: EXCLUSIVE
+        numExecutors: 1
+        remoteFS: /home/jenkins/agent
+        launcher:
+          inbound:
+            webSocket: true
+        retentionStrategy: always
+
+  globalNodeProperties:
+    - envVars:
+        env:
+          # Set from Terraform's output by scripts/jenkins_up.sh, so no account ID is in git.
+          - key: ECR_REPOSITORY_URL
+            value: ${ECR_REPOSITORY_URL}
+          # The k3d node's container name: the agent shares its Docker network.
+          - key: DAVINE_NODE_HOST
+            value: ${DAVINE_NODE_HOST:-k3d-davine-wk9-server-0}
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: ecr-registry
+              username: AWS
+              password: ${ecr_token}
+              description: >-
+                12-hour Amazon ECR token, minted through the push-only IAM role by
+                scripts/jenkins_up.sh. Jenkins holds no AWS access key.
+          - file:
+              scope: GLOBAL
+              id: k3d-deployer-kubeconfig
+              fileName: kubeconfig
+              secretBytes: ${base64:${readFile:/run/secrets/kubeconfig}}
+              description: >-
+                kubeconfig for the jenkins-deployer service account (namespace davine-space only),
+                with a 12-hour token. Written by scripts/cluster_up.sh.
+
+unclassified:
+  location:
+    url: http://localhost:8080/
+  timestamper:
+    allPipelines: true
+
+# The pipeline job, connected to the GitHub repository. Jenkins reads the Jenkinsfile from `main`
+# and polls GitHub for new commits (the trigger is in the Jenkinsfile), so nothing on this machine
+# has to be reachable from the internet. Week 5 exposed Jenkins through an ngrok tunnel instead.
+jobs:
+  - script: >
+      pipelineJob('davine-webapp') {
+        displayName('davine-webapp')
+        description('Build, test, package, push to Amazon ECR, deploy to Kubernetes (rolling or blue-green), verify, and roll back on failure.')
+        properties {
+          githubProjectUrl('${GIT_REPO_URL:-https://github.com/ooseni/davine-week9-jenkins-cicd-deployments}')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('${GIT_REPO_URL:-https://github.com/ooseni/davine-week9-jenkins-cicd-deployments}.git') }
+                branch('*/main')
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+      }

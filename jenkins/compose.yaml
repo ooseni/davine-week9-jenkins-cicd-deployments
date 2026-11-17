@@ -1,0 +1,63 @@
+# Jenkins for the week 9 lab: one controller and one build agent, on the k3d cluster's Docker
+# network so the agent can reach the Kubernetes API and the app's NodePorts by container name.
+# Start it with scripts/jenkins_up.sh, which creates the secret files and passes the variables.
+name: davine-wk9-jenkins
+
+services:
+  controller:
+    build: ./controller
+    image: davine-wk9-jenkins-controller:local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080" # the web UI on this machine only; nothing is exposed to the internet
+    environment:
+      ECR_REPOSITORY_URL: ${ECR_REPOSITORY_URL:?run scripts/jenkins_up.sh}
+      GIT_REPO_URL: ${GIT_REPO_URL:-https://github.com/ooseni/davine-week9-jenkins-cicd-deployments}
+      DAVINE_NODE_HOST: k3d-davine-wk9-server-0
+    secrets:
+      - jenkins_admin_password
+      - ecr_token
+      - kubeconfig
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - k3d
+
+  agent:
+    build: ./agent
+    image: davine-wk9-jenkins-agent:local
+    restart: unless-stopped
+    profiles: ["agent"] # started second: it needs the secret the controller derives for it
+    depends_on:
+      controller:
+        condition: service_healthy
+    environment:
+      JENKINS_URL: http://controller:8080/
+      JENKINS_AGENT_NAME: docker-agent
+      JENKINS_SECRET: ${JENKINS_AGENT_SECRET:?run scripts/jenkins_up.sh}
+      JENKINS_WEB_SOCKET: "true"
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+    # Builds use the host's Docker engine. Membership of its group is root-equivalent on this
+    # machine, which is acceptable for a lab agent only (see "Lab vs production" in the README).
+    group_add:
+      - "${DOCKER_GID:?run scripts/jenkins_up.sh}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - k3d
+
+networks:
+  k3d:
+    external: true
+    name: k3d-davine-wk9
+
+volumes:
+  jenkins_home:
+
+secrets:
+  jenkins_admin_password:
+    file: ../.live/jenkins-admin-password
+  ecr_token:
+    file: ../.live/ecr-token
+  kubeconfig:
+    file: ../.live/jenkins-kubeconfig
