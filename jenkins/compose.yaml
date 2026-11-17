@@ -28,6 +28,9 @@ services:
     image: davine-wk9-jenkins-agent:local
     restart: unless-stopped
     profiles: ["agent"] # started second: it needs the secret the controller derives for it
+    # The agent image runs Java as process 1, which never reaps orphaned build processes: the
+    # live run left 101 zombies behind. Docker's init (tini) reaps them.
+    init: true
     depends_on:
       controller:
         condition: service_healthy
