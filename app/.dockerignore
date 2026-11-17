@@ -1,0 +1,10 @@
+# Send the build only what the Dockerfile copies.
+**
+!requirements.txt
+!requirements-dev.txt
+!gunicorn.conf.py
+!pyproject.toml
+!webapp/
+!tests/
+**/__pycache__
+**/*.pyc
