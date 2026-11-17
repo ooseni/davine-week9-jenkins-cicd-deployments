@@ -1,0 +1,80 @@
+
+== Amazon ECR repository davine-wk9-webapp
+  PASS  tag mutability: IMMUTABLE
+  PASS  scan on push: true
+  PASS  encryption: KMS
+  PASS  lifecycle rules: 2
+
+== Images pushed by Jenkins
+  TAG                    DIGEST              SIZE_MB  SCAN      FINDINGS
+  1.0.0-b45f9e2-b1       sha256:69873def23a3 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.0.0-90178ed-b2       sha256:d7cd0d17a35f 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.0.0-90178ed-b3       sha256:8a997535af1c 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.1.0-296dde4-b4       sha256:1e696ebad5b9 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.1.0-296dde4-b5       sha256:300de14aebd4 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.1.0-296dde4-b6       sha256:24debb3010bb 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.1.0-e0939d6-b8       sha256:58717e52dcb8 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.1.0-f621a3e-b9       sha256:484564d5d26e 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.1.0-f621a3e-b10      sha256:76564740bcd8 47.6     COMPLETE  HIGH=3 MEDIUM=12 LOW=3
+  1.1.0-5421639-b11      sha256:a412a6dbb235 47.7     COMPLETE  HIGH=2 MEDIUM=11 LOW=3
+  PASS  every image has a unique tag: 10
+  PASS  scans completed: 10
+  HIGH findings in the newest image (package, CVE):
+    glibc 2.41-12+deb13u4  CVE-2026-19499
+    glibc 2.41-12+deb13u4  CVE-2026-5435
+
+== Immutability: moving an existing tag to another image is refused
+  PASS  retag 1.0.0-b45f9e2-b1 to the newest image: ImageTagAlreadyExistsException
+
+== The push role Jenkins' token comes from
+[10:47:03] acting as arn:aws:sts::<ACCOUNT_ID>:assumed-role/davine-wk9-jenkins-ecr-push/<SESSION>
+  PASS  get a registry token: allowed
+  PASS  pull an image manifest: allowed
+  PASS  list repositories: denied
+  PASS  delete an image: denied
+  PASS  create a repository: denied
+  PASS  list S3 buckets: denied
+
+== IAM policy simulation of the push role
+  PASS  ecr:PutImage on davine-wk9-webapp: allowed
+  PASS  ecr:PutImage on another repository: implicitDeny
+  PASS  ecr:BatchDeleteImage on davine-wk9-webapp: implicitDeny
+  PASS  ecr:SetRepositoryPolicy on davine-wk9-webapp: implicitDeny
+  PASS  iam:CreateAccessKey: implicitDeny
+
+== Kubernetes: what is running
+[10:47:56] davine-webapp runs <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp@sha256:a412a6dbb2358a0ba3de4447193cb9803e1d96793f4eb920d9209832770ae263
+  PASS  rolling Deployment image comes from ECR by digest: yes
+  PASS  that digest is in ECR: sha256:a412a6dbb2358a0ba3de4447193cb9803e1d96793f4eb920d9209832770ae263
+  PASS  pull secret is for the ECR registry: yes
+  Rollout history of davine-webapp:
+    1         Jenkins build #1: 1.0.0 (b45f9e2), ENV_MODE=production
+    2         Jenkins build #2: 1.0.0 (90178ed), ENV_MODE=production
+    4         Jenkins build #6: 1.1.0 (296dde4), ENV_MODE=prod
+    6         Jenkins build #8: 1.1.0 (e0939d6), ENV_MODE=production
+    7         Jenkins build #4: 1.1.0 (296dde4), ENV_MODE=production
+    8         Jenkins build #9: 1.1.0 (f621a3e), ENV_MODE=production
+    9         Jenkins build #11: 1.1.0 (5421639), ENV_MODE=production
+    
+  Blue-green slots (live: blue):
+    blue   ready 2/2  <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp@sha256:300de14aebd432aa9a7f4ebe3c116e2682eba5008fabc41d12acf3787844238e
+    green  ready 0/0  <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp@sha256:76564740bcd87effe7eb340674b5387f8e482711405d479a7616d99b05c1dea6
+  What the app says:
+    rolling    (NodePort 30080): {"app":"davine-webapp","commit":"5421639","env_mode":"production","pod":"davine-webapp-bffcd9f58-vqxjz","version":"1.1.0"}
+    blue-green (NodePort 30081): {"app":"davine-webapp","commit":"296dde4","env_mode":"production","pod":"davine-webapp-blue-68756cf4-7r6ct","version":"1.1.0"}
+
+== Jenkins builds
+  #1  FAILURE  1.0.0 (b45f9e2)  rolling  259s  started 08:49:36Z
+  #2  SUCCESS  1.0.0 (90178ed)  rolling  161s  started 08:59:06Z
+  #3  SUCCESS  1.0.0 (90178ed)  blue-green  98s  started 09:02:12Z
+  #4  SUCCESS  1.1.0 (296dde4)  rolling  200s  started 09:05:07Z
+  #5  SUCCESS  1.1.0 (296dde4)  blue-green  143s  started 09:08:47Z
+  #6  FAILURE  1.1.0 (296dde4)  rolling, bad release rehearsal, rolled back  149s  started 09:11:32Z
+  #7  ABORTED  1.1.0 (296dde4)  blue-green, bad release rehearsal  1439s  started 09:14:27Z
+  #8  FAILURE  1.1.0 (e0939d6)  rolling, rolled back  315s  started 10:17:13Z
+  #9  SUCCESS  1.1.0 (f621a3e)  rolling  213s  started 10:25:08Z
+  #10  FAILURE  1.1.0 (f621a3e)  blue-green, bad release rehearsal, rolled back  161s  started 10:28:58Z
+  #11  SUCCESS  1.1.0 (5421639)  rolling  190s  started 10:41:11Z
+  PASS  bad-release rehearsals that finished, all rolled back: 2
+
+== live verification: 22 passed, 0 failed

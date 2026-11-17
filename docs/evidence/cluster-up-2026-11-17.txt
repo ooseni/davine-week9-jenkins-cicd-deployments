@@ -1,0 +1,46 @@
+[08:10:20] creating cluster davine-wk9 (rancher/k3s:v1.36.6-k3s1)
+[36mINFO[0m[0001] Prep: Network                                
+[36mINFO[0m[0002] Created network 'k3d-davine-wk9'             
+[36mINFO[0m[0002] Created image volume k3d-davine-wk9-images   
+[36mINFO[0m[0002] Starting new tools node...                   
+[36mINFO[0m[0003] Creating node 'k3d-davine-wk9-server-0'      
+[36mINFO[0m[0005] Creating LoadBalancer 'k3d-davine-wk9-serverlb' 
+[36mINFO[0m[0005] Starting node 'k3d-davine-wk9-tools'         
+[36mINFO[0m[0006] Using the k3d-tools node to gather environment information 
+[36mINFO[0m[0008] HostIP: using network gateway <PRIVATE_IP> address 
+[36mINFO[0m[0008] Starting cluster 'davine-wk9'                
+[36mINFO[0m[0008] Starting servers...                          
+[36mINFO[0m[0012] Starting node 'k3d-davine-wk9-server-0'      
+[36mINFO[0m[0032] All agents already running.                  
+[36mINFO[0m[0032] Starting helpers...                          
+[36mINFO[0m[0035] Starting node 'k3d-davine-wk9-serverlb'      
+[36mINFO[0m[0055] Injecting records for hostAliases (incl. host.k3d.internal) and for 2 network members into CoreDNS configmap... 
+[36mINFO[0m[0069] Cluster 'davine-wk9' created successfully!   
+[36mINFO[0m[0072] You can now use it like this:                
+kubectl cluster-info
+node/k3d-davine-wk9-server-0 condition met
+[08:11:35] applying k8s/cluster as cluster admin: namespace davine-space (restricted pod security) and jenkins-deployer
+namespace/davine-space created
+serviceaccount/jenkins-deployer created
+role.rbac.authorization.k8s.io/jenkins-deployer created
+rolebinding.rbac.authorization.k8s.io/jenkins-deployer created
+secret/ecr-pull created
+networkpolicy.networking.k8s.io/davine-webapp-http-in created
+networkpolicy.networking.k8s.io/default-deny-all created
+[08:11:40] wrote .live/deployer-kubeconfig and .live/jenkins-kubeconfig (jenkins-deployer, valid 12 hours)
+
+== What jenkins-deployer may do
+  PASS  patch deployments in davine-space: yes
+  PASS  create services in davine-space: yes
+  PASS  list pods in davine-space: yes
+  PASS  delete deployments in davine-space: no
+  PASS  read secrets in kube-system: no
+  PASS  list nodes: no
+  PASS  delete namespace davine-space: no
+  PASS  exec into pods: no
+  PASS  change NetworkPolicies: no
+  PASS  update the ecr-pull secret: yes
+  PASS  read any other secret: no
+  PASS  create secrets: no
+
+== cluster ready: 12 passed, 0 failed

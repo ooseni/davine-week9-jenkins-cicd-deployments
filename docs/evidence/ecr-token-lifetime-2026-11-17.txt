@@ -1,0 +1,9 @@
+ECR token lifetime test, 17 November 2026 10:50 WAT
+Token A minted 09:13 local through the push role (role session ended 10:13); token B minted 09:36 (session ended 10:36).
+Request: GET https://<registry>/v2/davine-wk9-webapp/manifests/1.1.0-296dde4-b4 (needs ecr:BatchGetImage, which the role has)
+  token A at 10:49: HTTP 200
+  token B at 10:49: HTTP 200
+  no token:         HTTP 401
+Request: GET https://<registry>/v2/davine-wk9-webapp/tags/list (needs ecr:ListImages, which the role does not have)
+  token A and token B: HTTP 403
+Conclusion: an ECR token keeps its 12 hours after the assumed-role session that requested it has ended, and it carries only that role's permissions.

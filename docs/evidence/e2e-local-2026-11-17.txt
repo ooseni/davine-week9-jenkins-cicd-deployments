@@ -1,0 +1,295 @@
+
+== Build and push two releases to localhost:5050/davine-webapp
+[07:32:42] 1.0.0 is localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+[07:32:42] 1.1.0 is localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+
+== 1. Rolling: first release 1.0.0
+      [07:32:44] running now: nothing (revision none, no Deployment yet)
+      [07:32:44] no registry credentials given: the cluster pulls without a secret
+      [07:32:44] applying localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb with ENV_MODE=production
+      configmap/web-config-b6692gmk59 created
+      service/davine-webapp-service created
+      deployment.apps/davine-webapp created
+      Waiting for deployment "davine-webapp" rollout to finish: 0 of 3 updated replicas are available...
+      Waiting for deployment "davine-webapp" rollout to finish: 0 of 3 updated replicas are available...
+      Waiting for deployment "davine-webapp" rollout to finish: 0 of 3 updated replicas are available...
+      Waiting for deployment "davine-webapp" rollout to finish: 0 of 3 updated replicas are available...
+      deployment "davine-webapp" successfully rolled out
+      deployment.apps/davine-webapp 
+      REVISION  CHANGE-CAUSE
+      1         deploy localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb with ENV_MODE=production
+      
+  PASS  deploy 1.0.0 (exit code): 0
+      
+      == Verify 1.0.0 on the rolling Deployment at http://localhost:30080
+        PASS  Service gives 10 answers in a row from 1.0.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.0.0
+        PASS  /metrics build_info version: 1.0.0
+        PASS  30 requests answered by: 1.0.0 x30
+        PASS  davine-webapp ready replicas: 3
+        PASS  davine-webapp updated replicas: 3
+        PASS  davine-webapp image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+        PASS  pod davine-webapp-686cfc74-7fwkq image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+        PASS  pod davine-webapp-686cfc74-qh5k9 image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+        PASS  pod davine-webapp-686cfc74-tvs8g image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+      
+      == verify 1.0.0: 12 passed, 0 failed
+  PASS  verify 1.0.0 (exit code): 0
+
+== 2. Rolling: update to 1.1.0 under traffic
+      [07:33:20] running now: 1.0.0 (revision 1, localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb)
+      [07:33:20] no registry credentials given: the cluster pulls without a secret
+      [07:33:20] applying localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5 with ENV_MODE=production
+      configmap/web-config-b6692gmk59 unchanged
+      service/davine-webapp-service unchanged
+      deployment.apps/davine-webapp configured
+      Waiting for deployment "davine-webapp" rollout to finish: 1 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 1 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 1 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 1 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 2 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 2 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 2 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 2 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 2 out of 3 new replicas have been updated...
+      Waiting for deployment "davine-webapp" rollout to finish: 1 old replicas are pending termination...
+      Waiting for deployment "davine-webapp" rollout to finish: 1 old replicas are pending termination...
+      Waiting for deployment "davine-webapp" rollout to finish: 1 old replicas are pending termination...
+      Waiting for deployment "davine-webapp" rollout to finish: 1 old replicas are pending termination...
+      deployment "davine-webapp" successfully rolled out
+      [07:34:10] traffic during the change: 239 requests, 0 failed; answered by 1.1.0 x82, 1.0.0 x157
+      REVISION  CHANGE-CAUSE
+      1         deploy localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb with ENV_MODE=production
+      2         deploy localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5 with ENV_MODE=production
+      
+  PASS  deploy 1.1.0 (exit code): 0
+  PASS  failed requests during the rolling update: 0
+      
+      == Verify 1.1.0 on the rolling Deployment at http://localhost:30080
+        PASS  Service gives 10 answers in a row from 1.1.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.1.0
+        PASS  /metrics build_info version: 1.1.0
+        PASS  30 requests answered by: 1.1.0 x30
+        PASS  davine-webapp ready replicas: 3
+        PASS  davine-webapp updated replicas: 3
+        PASS  davine-webapp image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-754f95dbcf-9g4gr image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-754f95dbcf-mqvrp image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-754f95dbcf-vqtdg image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+      
+      == verify 1.1.0: 12 passed, 0 failed
+  PASS  verify 1.1.0 (exit code): 0
+
+== 3. Rolling: bad release (ENV_MODE=prod), then rollback
+      [07:34:21] running now: 1.1.0 (revision 2, localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5)
+      [07:34:21] no registry credentials given: the cluster pulls without a secret
+      [07:34:21] applying localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5 with ENV_MODE=prod
+      configmap/web-config-8dthdcf7d4 created
+      service/davine-webapp-service unchanged
+      deployment.apps/davine-webapp configured
+      Waiting for deployment "davine-webapp" rollout to finish: 1 out of 3 new replicas have been updated...
+      error: deployment "davine-webapp" exceeded its progress deadline
+      [07:35:24] the rollout did not complete; finding out why
+      [07:35:24] pods of davine-webapp:
+          davine-webapp-754f95dbcf-9g4gr   1/1   Running            0             102s   <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+          davine-webapp-754f95dbcf-mqvrp   1/1   Running            0             89s    <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+          davine-webapp-754f95dbcf-vqtdg   1/1   Running            0             119s   <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+          davine-webapp-7b55587485-fv2bg   0/1   CrashLoopBackOff   2 (21s ago)   61s    <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+      [07:35:24] conditions of davine-webapp:
+          Available=True MinimumReplicasAvailable: Deployment has minimum availability.
+          Progressing=False ProgressDeadlineExceeded: ReplicaSet "davine-webapp-7b55587485" has timed out progressing.
+      [07:35:26] last log lines of davine-webapp-7b55587485-fv2bg, which is not ready:
+          davine-webapp: refusing to start: ENV_MODE must be one of development, staging, production; got 'prod'
+      [07:35:29] traffic during the change: 372 requests, 0 failed; answered by 1.1.0 x372
+      1         deploy localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb with ENV_MODE=production
+      2         deploy localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5 with ENV_MODE=production
+      3         deploy localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5 with ENV_MODE=prod
+      
+  PASS  deploy the bad release fails (exit code): 1
+  PASS  failed requests while the bad release was stuck: 0
+  PASS  1.1.0 still answered during the bad release: yes
+      [07:35:30] rolling back davine-webapp to revision 2 (1.1.0)
+      Warning: resource deployments/davine-webapp was previously managed with 'kubectl apply'. Rolling back will not update the kubectl.kubernetes.io/last-applied-configuration annotation, which may cause unexpected behavior on future 'kubectl apply' operations. Consider using 'kubectl apply' with your previous configuration file instead.
+      deployment.apps/davine-webapp rolled back
+      deployment "davine-webapp" successfully rolled out
+      1         deploy localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb with ENV_MODE=production
+      3         deploy localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5 with ENV_MODE=prod
+      4         deploy localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5 with ENV_MODE=production
+      
+      [07:35:34] back on localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5; verifying
+      
+      == Verify 1.1.0 on the rolling Deployment at http://localhost:30080
+        PASS  Service gives 10 answers in a row from 1.1.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.1.0
+        PASS  /metrics build_info version: 1.1.0
+        PASS  30 requests answered by: 1.1.0 x30
+        PASS  davine-webapp ready replicas: 3
+        PASS  davine-webapp updated replicas: 3
+        PASS  davine-webapp image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-754f95dbcf-9g4gr image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-754f95dbcf-mqvrp image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-754f95dbcf-vqtdg image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+      
+      == verify 1.1.0: 12 passed, 0 failed
+  PASS  rollback and verify 1.1.0 (exit code): 0
+  PASS  ENV_MODE after rollback: production
+
+== 4. Blue-green: first release 1.0.0
+      [07:35:43] no registry credentials given: the cluster pulls without a secret
+      [07:35:44] live slot: blue (no release yet); deploying 1.0.0 to the idle slot: green
+      configmap/web-config-bg-b6692gmk59 created
+      service/davine-webapp-bg-live created
+      service/davine-webapp-bg-preview created
+      deployment.apps/davine-webapp-blue created
+      deployment.apps/davine-webapp-green created
+      Waiting for deployment "davine-webapp-green" rollout to finish: 0 of 2 updated replicas are available...
+      Waiting for deployment "davine-webapp-green" rollout to finish: 1 of 2 updated replicas are available...
+      deployment "davine-webapp-green" successfully rolled out
+      
+      == Verify 1.0.0 on the idle green slot, through the preview Service at http://localhost:30082
+        PASS  Service gives 10 answers in a row from 1.0.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.0.0
+        PASS  /metrics build_info version: 1.0.0
+        PASS  30 requests answered by: 1.0.0 x30
+        PASS  davine-webapp-green ready replicas: 2
+        PASS  davine-webapp-green updated replicas: 2
+        PASS  davine-webapp-green image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+        PASS  pod davine-webapp-green-7d5c7cd897-d7bg4 image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+        PASS  pod davine-webapp-green-7d5c7cd897-jsshk image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+      
+      == verify 1.0.0: 11 passed, 0 failed
+      [07:36:04] switching live from blue to green
+      [07:36:05] live is now green (1.0.0). This was the first release, so there is nothing to roll back to yet
+  PASS  deploy 1.0.0 to the idle slot and switch (exit code): 0
+      
+      == Verify 1.0.0 on the blue-green live slot (green) at http://localhost:30081
+        PASS  Service gives 10 answers in a row from 1.0.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.0.0
+        PASS  /metrics build_info version: 1.0.0
+        PASS  30 requests answered by: 1.0.0 x30
+        PASS  davine-webapp-green ready replicas: 2
+        PASS  davine-webapp-green updated replicas: 2
+        PASS  davine-webapp-green image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+        PASS  pod davine-webapp-green-7d5c7cd897-d7bg4 image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+        PASS  pod davine-webapp-green-7d5c7cd897-jsshk image: localhost:5050/davine-webapp@sha256:cb4a279a00c40ed463df31185e50e477fd8ab93fcb368bbdcfddee2767afc9fb
+      
+      == verify 1.0.0: 11 passed, 0 failed
+  PASS  verify the live slot (exit code): 0
+
+== 5. Blue-green: switch to 1.1.0 under traffic
+      [07:36:15] no registry credentials given: the cluster pulls without a secret
+      [07:36:18] live slot: green (1.0.0); deploying 1.1.0 to the idle slot: blue
+      configmap/web-config-bg-b6692gmk59 unchanged
+      deployment.apps/davine-webapp-blue configured
+      Waiting for deployment "davine-webapp-blue" rollout to finish: 0 of 2 updated replicas are available...
+      Waiting for deployment "davine-webapp-blue" rollout to finish: 1 of 2 updated replicas are available...
+      deployment "davine-webapp-blue" successfully rolled out
+      
+      == Verify 1.1.0 on the idle blue slot, through the preview Service at http://localhost:30082
+        PASS  Service gives 10 answers in a row from 1.1.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.1.0
+        PASS  /metrics build_info version: 1.1.0
+        PASS  30 requests answered by: 1.1.0 x30
+        PASS  davine-webapp-blue ready replicas: 2
+        PASS  davine-webapp-blue updated replicas: 2
+        PASS  davine-webapp-blue image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-blue-bb79d5cd5-txn9z image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-blue-bb79d5cd5-xnbbs image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+      
+      == verify 1.1.0: 11 passed, 0 failed
+      [07:37:06] switching live from green to blue
+      [07:37:13] traffic during the change: 33 requests, 0 failed; answered by 1.1.0 x28, 1.0.0 x5
+      [07:37:14] live is now blue (1.1.0). green keeps 2 ready pods of 1.0.0 for an instant rollback
+  PASS  deploy 1.1.0 to the idle slot and switch (exit code): 0
+  PASS  failed requests during the switch: 0
+  PASS  live slot moved: yes
+      
+      == Verify 1.1.0 on the blue-green live slot (blue) at http://localhost:30081
+        PASS  Service gives 10 answers in a row from 1.1.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.1.0
+        PASS  /metrics build_info version: 1.1.0
+        PASS  30 requests answered by: 1.1.0 x30
+        PASS  davine-webapp-blue ready replicas: 2
+        PASS  davine-webapp-blue updated replicas: 2
+        PASS  davine-webapp-blue image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-blue-bb79d5cd5-txn9z image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+        PASS  pod davine-webapp-blue-bb79d5cd5-xnbbs image: localhost:5050/davine-webapp@sha256:254eaf2fda35b5108c00ccb913760c773ccdc492b2891d7911e3526f9306a5d5
+      
+      == verify 1.1.0: 11 passed, 0 failed
+  PASS  verify the live slot (exit code): 0
+
+== 6. Blue-green: instant rollback to 1.0.0
+      [07:37:27] switching live back from blue to green
+      [07:37:33] traffic during the change: 34 requests, 0 failed; answered by 1.1.0 x5, 1.0.0 x29
+      [07:37:33] scaling the failed blue slot to 0
+      
+      == Verify 1.0.0 on the blue-green live slot (green) at http://localhost:30081
+        PASS  Service gives 10 answers in a row from 1.0.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.0.0
+        PASS  /metrics build_info version: 1.0.0
+        PASS  30 requests answered by: 1.0.0 x30
+        PASS  davine-webapp-green ready replicas: 2
+        PASS  davine-webapp-green updated replicas: 2
+      
+      == verify 1.0.0: 8 passed, 0 failed
+  PASS  switch back and verify 1.0.0 (exit code): 0
+  PASS  failed requests during the switch back: 0
+  PASS  live slot is the first one again: green
+
+== 7. Blue-green: a bad release never reaches users
+      [07:37:44] no registry credentials given: the cluster pulls without a secret
+      [07:37:46] live slot: green (1.0.0); deploying 1.1.0 to the idle slot: blue
+      configmap/web-config-bg-8dthdcf7d4 created
+      deployment.apps/davine-webapp-blue configured
+      Waiting for deployment "davine-webapp-blue" rollout to finish: 0 of 2 updated replicas are available...
+      error: deployment "davine-webapp-blue" exceeded its progress deadline
+      [07:38:48] pods of davine-webapp-blue:
+          davine-webapp-blue-6db5cf6487-7jnbg   0/1   CrashLoopBackOff   2 (12s ago)   62s   <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+          davine-webapp-blue-6db5cf6487-ssql7   0/1   CrashLoopBackOff   2 (13s ago)   62s   <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+      [07:38:49] conditions of davine-webapp-blue:
+          Available=False MinimumReplicasUnavailable: Deployment does not have minimum availability.
+          Progressing=False ProgressDeadlineExceeded: ReplicaSet "davine-webapp-blue-6db5cf6487" has timed out progressing.
+      [07:38:52] last log lines of davine-webapp-blue-6db5cf6487-7jnbg, which is not ready:
+          davine-webapp: refusing to start: ENV_MODE must be one of development, staging, production; got 'prod'
+      [07:38:52] ERROR: the blue slot never became ready, so the switch was not made: users stayed on green
+  PASS  deploy the bad release fails before the switch (exit code): 1
+  PASS  live slot unchanged: green
+  PASS  users still get: 1.0.0
+      [07:38:54] live never left green: users were not affected by the failed release
+      [07:38:54] scaling the failed blue slot to 0
+      
+      == Verify 1.0.0 on the blue-green live slot (green) at http://localhost:30081
+        PASS  Service gives 10 answers in a row from 1.0.0 (within 60 s): yes
+        PASS  GET /healthz: 200
+        PASS  GET /readyz: 200
+        PASS  /version reports: 1.0.0
+        PASS  /metrics build_info version: 1.0.0
+        PASS  30 requests answered by: 1.0.0 x30
+        PASS  davine-webapp-green ready replicas: 2
+        PASS  davine-webapp-green updated replicas: 2
+      
+      == verify 1.0.0: 8 passed, 0 failed
+  PASS  rollback cleans up the failed slot (exit code): 0
+
+== 8. NetworkPolicy: the app's pods cannot open outbound connections
+  PASS  outbound from a pod outside davine-space (control): OPEN
+  PASS  outbound from a davine-webapp pod: BLOCKED
+
+== end-to-end: 25 passed, 0 failed
+e2e rc=0

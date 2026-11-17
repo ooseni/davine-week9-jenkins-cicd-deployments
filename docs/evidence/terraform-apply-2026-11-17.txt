@@ -1,0 +1,18 @@
+aws_iam_role.jenkins_ecr_push: Creating...
+aws_ecr_repository.webapp: Creating...
+aws_iam_role.jenkins_ecr_push: Creation complete after 2s [id=davine-wk9-jenkins-ecr-push]
+aws_ecr_repository.webapp: Creation complete after 2s [id=davine-wk9-webapp]
+aws_iam_role_policy.jenkins_ecr_push: Creating...
+aws_ecr_lifecycle_policy.webapp: Creating...
+aws_ecr_lifecycle_policy.webapp: Creation complete after 1s [id=davine-wk9-webapp]
+aws_iam_role_policy.jenkins_ecr_push: Creation complete after 1s [id=davine-wk9-jenkins-ecr-push:push-and-pull-davine-wk9-webapp]
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+push_role_arn = "arn:aws:iam::<ACCOUNT_ID>:role/davine-wk9-jenkins-ecr-push"
+region = "us-east-1"
+repository_name = "davine-wk9-webapp"
+repository_url = "<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp"
+trusted_role_arn = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_<PERMISSION_SET>"

@@ -1,0 +1,526 @@
+[2026-11-17T10:28:58.891Z] Started by user Administrator
+[2026-11-17T10:29:00.005Z] Obtained Jenkinsfile from git https://github.com/ooseni/davine-week9-jenkins-cicd-deployments.git
+[2026-11-17T10:29:03.081Z] [Pipeline] Start of Pipeline
+[2026-11-17T10:29:06.051Z] [Pipeline] node
+[2026-11-17T10:29:06.144Z] Running on docker-agent in /home/jenkins/agent/workspace/davine-webapp
+[2026-11-17T10:29:06.206Z] [Pipeline] {
+[2026-11-17T10:29:06.349Z] [Pipeline] withEnv
+[2026-11-17T10:29:06.362Z] [Pipeline] {
+[2026-11-17T10:29:06.426Z] [Pipeline] timestamps
+[2026-11-17T10:29:06.427Z] The timestamps step is unnecessary when timestamps are enabled for all Pipeline builds.
+[2026-11-17T10:29:06.439Z] [Pipeline] {
+[2026-11-17T10:29:06.522Z] [Pipeline] timeout
+[2026-11-17T10:29:06.524Z] Timeout set to expire in 30 min
+[2026-11-17T10:29:06.537Z] [Pipeline] {
+[2026-11-17T10:29:06.733Z] [Pipeline] stage
+[2026-11-17T10:29:06.756Z] [Pipeline] { (Checkout)
+[2026-11-17T10:29:06.890Z] [Pipeline] script
+[2026-11-17T10:29:06.911Z] [Pipeline] {
+[2026-11-17T10:29:06.998Z] [Pipeline] checkout
+[2026-11-17T10:29:07.023Z] Selected Git installation does not exist. Using Default
+[2026-11-17T10:29:07.023Z] The recommended git tool is: NONE
+[2026-11-17T10:29:07.036Z] No credentials specified
+[2026-11-17T10:29:07.055Z] Fetching changes from the remote Git repository
+[2026-11-17T10:29:07.041Z]  > git rev-parse --resolve-git-dir /home/jenkins/agent/workspace/davine-webapp/.git # timeout=10
+[2026-11-17T10:29:07.069Z]  > git config remote.origin.url https://github.com/ooseni/davine-week9-jenkins-cicd-deployments.git # timeout=10
+[2026-11-17T10:29:07.087Z] Fetching upstream changes from https://github.com/ooseni/davine-week9-jenkins-cicd-deployments.git
+[2026-11-17T10:29:07.087Z]  > git --version # timeout=10
+[2026-11-17T10:29:07.098Z]  > git --version # 'git version 2.47.3'
+[2026-11-17T10:29:07.099Z]  > git fetch --tags --force --progress -- https://github.com/ooseni/davine-week9-jenkins-cicd-deployments.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-17T10:29:08.254Z] Checking out Revision f621a3e24314faa104196462d444a86e4dba9960 (refs/remotes/origin/main)
+[2026-11-17T10:29:08.300Z] Commit message: "fix(deploy): judge a rollout by a 1% error budget, not zero failures"
+[2026-11-17T10:29:08.240Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-11-17T10:29:08.265Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-17T10:29:08.275Z]  > git checkout -f f621a3e24314faa104196462d444a86e4dba9960 # timeout=10
+[2026-11-17T10:29:08.304Z]  > git rev-list --no-walk f621a3e24314faa104196462d444a86e4dba9960 # timeout=10
+[2026-11-17T10:29:08.441Z] [Pipeline] sh
+[2026-11-17T10:29:08.754Z] + git rev-parse --short=7 HEAD
+[2026-11-17T10:29:08.831Z] [Pipeline] readFile
+[2026-11-17T10:29:09.019Z] [Pipeline] }
+[2026-11-17T10:29:09.086Z] [Pipeline] // script
+[2026-11-17T10:29:09.131Z] [Pipeline] sh
+[2026-11-17T10:29:09.434Z] + git log -1 --format=Building commit %h by %an: %s
+[2026-11-17T10:29:09.435Z] Building commit f621a3e by Oseni Sakariyau Oluwadamilare: fix(deploy): judge a rollout by a 1% error budget, not zero failures
+[2026-11-17T10:29:09.487Z] [Pipeline] }
+[2026-11-17T10:29:09.584Z] [Pipeline] // stage
+[2026-11-17T10:29:09.654Z] [Pipeline] stage
+[2026-11-17T10:29:09.667Z] [Pipeline] { (Build)
+[2026-11-17T10:29:09.786Z] [Pipeline] sh
+[2026-11-17T10:29:10.121Z] + docker build --target build -t davine-webapp:build-1.1.0-f621a3e-b10 app/
+[2026-11-17T10:29:10.710Z] #0 building with "default" instance using docker driver
+[2026-11-17T10:29:10.710Z] 
+[2026-11-17T10:29:10.710Z] #1 [internal] load build definition from Dockerfile
+[2026-11-17T10:29:10.710Z] #1 transferring dockerfile: 2.45kB done
+[2026-11-17T10:29:10.710Z] #1 DONE 0.0s
+[2026-11-17T10:29:10.710Z] 
+[2026-11-17T10:29:10.710Z] #2 [internal] load metadata for docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:12.761Z] #2 DONE 2.1s
+[2026-11-17T10:29:12.761Z] 
+[2026-11-17T10:29:12.761Z] #3 [internal] load .dockerignore
+[2026-11-17T10:29:12.762Z] #3 transferring context: 210B 0.0s done
+[2026-11-17T10:29:12.762Z] #3 DONE 0.1s
+[2026-11-17T10:29:13.052Z] 
+[2026-11-17T10:29:13.053Z] #4 [internal] load build context
+[2026-11-17T10:29:13.053Z] #4 DONE 0.0s
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #5 [python 1/1] FROM docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:13.053Z] #5 resolve docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:13.053Z] #5 resolve docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f 0.2s done
+[2026-11-17T10:29:13.053Z] #5 DONE 0.2s
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #4 [internal] load build context
+[2026-11-17T10:29:13.053Z] #4 transferring context: 360B 0.0s done
+[2026-11-17T10:29:13.053Z] #4 DONE 0.0s
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #6 [build 2/7] RUN python -m venv /opt/venv
+[2026-11-17T10:29:13.053Z] #6 CACHED
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #7 [build 3/7] COPY requirements.txt .
+[2026-11-17T10:29:13.053Z] #7 CACHED
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #8 [build 1/7] WORKDIR /src
+[2026-11-17T10:29:13.053Z] #8 CACHED
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #9 [build 4/7] RUN pip install --require-hashes --no-deps -r requirements.txt
+[2026-11-17T10:29:13.053Z] #9 CACHED
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #10 [build 5/7] COPY gunicorn.conf.py .
+[2026-11-17T10:29:13.053Z] #10 CACHED
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #11 [build 6/7] COPY webapp/ webapp/
+[2026-11-17T10:29:13.053Z] #11 CACHED
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #12 [build 7/7] RUN python -m compileall -q webapp
+[2026-11-17T10:29:13.053Z] #12 CACHED
+[2026-11-17T10:29:13.053Z] 
+[2026-11-17T10:29:13.053Z] #13 exporting to image
+[2026-11-17T10:29:13.053Z] #13 exporting layers 0.0s done
+[2026-11-17T10:29:13.358Z] #13 exporting manifest sha256:3ccdfd8174022b9f99765c206c8e426d4847910425ab5978d481f35542f62912 done
+[2026-11-17T10:29:13.358Z] #13 exporting config sha256:45b678b91455d9980d6a73f8344abbd4dabb8acdbcba963d4af82361f109848f done
+[2026-11-17T10:29:13.358Z] #13 exporting attestation manifest sha256:2eeeb621250077d84dee1881da1c1dcd95f89bc3486d93b2efc54f136defb845
+[2026-11-17T10:29:13.358Z] #13 exporting attestation manifest sha256:2eeeb621250077d84dee1881da1c1dcd95f89bc3486d93b2efc54f136defb845 0.1s done
+[2026-11-17T10:29:13.358Z] #13 exporting manifest list sha256:e62acd5d6a3f6af34e058af309be84e5293a02c1e64500851147f84758b3b375 0.1s done
+[2026-11-17T10:29:13.358Z] #13 naming to docker.io/library/davine-webapp:build-1.1.0-f621a3e-b10
+[2026-11-17T10:29:13.639Z] #13 naming to docker.io/library/davine-webapp:build-1.1.0-f621a3e-b10 done
+[2026-11-17T10:29:13.639Z] #13 unpacking to docker.io/library/davine-webapp:build-1.1.0-f621a3e-b10 0.0s done
+[2026-11-17T10:29:13.639Z] #13 DONE 0.6s
+[2026-11-17T10:29:14.314Z] [Pipeline] sh
+[2026-11-17T10:29:14.681Z] + docker build --target test -t davine-webapp:test-1.1.0-f621a3e-b10 app/
+[2026-11-17T10:29:16.163Z] #0 building with "default" instance using docker driver
+[2026-11-17T10:29:16.163Z] 
+[2026-11-17T10:29:16.163Z] #1 [internal] load build definition from Dockerfile
+[2026-11-17T10:29:16.163Z] #1 transferring dockerfile: 2.45kB 0.0s done
+[2026-11-17T10:29:16.163Z] #1 DONE 0.0s
+[2026-11-17T10:29:16.163Z] 
+[2026-11-17T10:29:16.163Z] #2 [internal] load metadata for docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:16.163Z] #2 DONE 0.1s
+[2026-11-17T10:29:16.163Z] 
+[2026-11-17T10:29:16.163Z] #3 [internal] load .dockerignore
+[2026-11-17T10:29:16.163Z] #3 transferring context: 210B 0.0s done
+[2026-11-17T10:29:16.163Z] #3 DONE 0.1s
+[2026-11-17T10:29:16.163Z] 
+[2026-11-17T10:29:16.163Z] #4 [internal] load build context
+[2026-11-17T10:29:16.163Z] #4 DONE 0.0s
+[2026-11-17T10:29:16.163Z] 
+[2026-11-17T10:29:16.164Z] #5 [python 1/1] FROM docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:16.164Z] #5 ...
+[2026-11-17T10:29:16.164Z] 
+[2026-11-17T10:29:16.164Z] #4 [internal] load build context
+[2026-11-17T10:29:16.164Z] #4 transferring context: 21.63kB 0.0s done
+[2026-11-17T10:29:16.164Z] #4 DONE 0.1s
+[2026-11-17T10:29:16.164Z] 
+[2026-11-17T10:29:16.164Z] #5 [python 1/1] FROM docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:16.164Z] #5 resolve docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f 0.1s done
+[2026-11-17T10:29:16.164Z] #5 DONE 0.1s
+[2026-11-17T10:29:16.164Z] 
+[2026-11-17T10:29:16.164Z] #6 [test 1/4] COPY requirements-dev.txt .
+[2026-11-17T10:29:16.164Z] #6 CACHED
+[2026-11-17T10:29:16.164Z] 
+[2026-11-17T10:29:16.164Z] #7 [test 3/4] COPY pyproject.toml .
+[2026-11-17T10:29:16.164Z] #7 CACHED
+[2026-11-17T10:29:16.164Z] 
+[2026-11-17T10:29:16.164Z] #8 [build 2/7] RUN python -m venv /opt/venv
+[2026-11-17T10:29:16.164Z] #8 CACHED
+[2026-11-17T10:29:16.164Z] 
+[2026-11-17T10:29:16.164Z] #9 [build 5/7] COPY gunicorn.conf.py .
+[2026-11-17T10:29:16.164Z] #9 CACHED
+[2026-11-17T10:29:16.164Z] 
+[2026-11-17T10:29:16.165Z] #10 [build 7/7] RUN python -m compileall -q webapp
+[2026-11-17T10:29:16.165Z] #10 CACHED
+[2026-11-17T10:29:16.165Z] 
+[2026-11-17T10:29:16.165Z] #11 [build 4/7] RUN pip install --require-hashes --no-deps -r requirements.txt
+[2026-11-17T10:29:16.165Z] #11 CACHED
+[2026-11-17T10:29:16.165Z] 
+[2026-11-17T10:29:16.165Z] #12 [test 2/4] RUN pip install --require-hashes --no-deps -r requirements-dev.txt
+[2026-11-17T10:29:16.165Z] #12 CACHED
+[2026-11-17T10:29:16.165Z] 
+[2026-11-17T10:29:16.165Z] #13 [build 1/7] WORKDIR /src
+[2026-11-17T10:29:16.165Z] #13 CACHED
+[2026-11-17T10:29:16.165Z] 
+[2026-11-17T10:29:16.165Z] #14 [build 3/7] COPY requirements.txt .
+[2026-11-17T10:29:16.165Z] #14 CACHED
+[2026-11-17T10:29:16.165Z] 
+[2026-11-17T10:29:16.165Z] #15 [build 6/7] COPY webapp/ webapp/
+[2026-11-17T10:29:16.165Z] #15 CACHED
+[2026-11-17T10:29:16.165Z] 
+[2026-11-17T10:29:16.165Z] #16 [test 4/4] COPY tests/ tests/
+[2026-11-17T10:29:16.165Z] #16 CACHED
+[2026-11-17T10:29:16.165Z] 
+[2026-11-17T10:29:16.165Z] #17 exporting to image
+[2026-11-17T10:29:16.165Z] #17 exporting layers 0.0s done
+[2026-11-17T10:29:16.165Z] #17 exporting manifest sha256:0b4df8f05468ba8738b84d89200de112c7f118e1942a80665d71becaebd95128 done
+[2026-11-17T10:29:16.165Z] #17 exporting config sha256:8a223610bc01e9e88bc8da32612150ac1cd54c44c97995e5b9263b3da4fef1ec 0.0s done
+[2026-11-17T10:29:16.165Z] #17 exporting attestation manifest sha256:421c3a3ba3081ec9c47ec6664b06a907516ce4ecadaf8b409c6a8fbcad9ac2cd
+[2026-11-17T10:29:16.446Z] #17 exporting attestation manifest sha256:421c3a3ba3081ec9c47ec6664b06a907516ce4ecadaf8b409c6a8fbcad9ac2cd 0.1s done
+[2026-11-17T10:29:16.447Z] #17 exporting manifest list sha256:0db19781f166b6d36023237e94ba6923b9b7a5bd10d80881ffcbfb494525fd9b 0.1s done
+[2026-11-17T10:29:16.447Z] #17 naming to docker.io/library/davine-webapp:test-1.1.0-f621a3e-b10
+[2026-11-17T10:29:16.447Z] #17 naming to docker.io/library/davine-webapp:test-1.1.0-f621a3e-b10 0.0s done
+[2026-11-17T10:29:16.447Z] #17 unpacking to docker.io/library/davine-webapp:test-1.1.0-f621a3e-b10 0.1s done
+[2026-11-17T10:29:16.726Z] #17 DONE 0.6s
+[2026-11-17T10:29:17.344Z] [Pipeline] }
+[2026-11-17T10:29:17.424Z] [Pipeline] // stage
+[2026-11-17T10:29:17.544Z] [Pipeline] stage
+[2026-11-17T10:29:17.562Z] [Pipeline] { (Test)
+[2026-11-17T10:29:17.843Z] [Pipeline] parallel
+[2026-11-17T10:29:18.014Z] [Pipeline] { (Branch: Unit tests)
+[2026-11-17T10:29:18.028Z] [Pipeline] { (Branch: Static checks)
+[2026-11-17T10:29:18.173Z] [Pipeline] stage
+[2026-11-17T10:29:18.190Z] [Pipeline] { (Unit tests)
+[2026-11-17T10:29:18.293Z] [Pipeline] stage
+[2026-11-17T10:29:18.316Z] [Pipeline] { (Static checks)
+[2026-11-17T10:29:18.680Z] [Pipeline] sh
+[2026-11-17T10:29:19.013Z] [Pipeline] sh
+[2026-11-17T10:29:19.281Z] + mkdir -p reports
+[2026-11-17T10:29:19.281Z] + set +e
+[2026-11-17T10:29:19.281Z] + docker run --name unit-jenkins-davine-webapp-10 davine-webapp:test-1.1.0-f621a3e-b10
+[2026-11-17T10:29:19.488Z] + docker run --rm davine-webapp:test-1.1.0-f621a3e-b10 sh -c ruff check . && ruff format --check .
+[2026-11-17T10:29:20.979Z] All checks passed!
+[2026-11-17T10:29:20.979Z] 10 files already formatted
+[2026-11-17T10:29:22.578Z] [Pipeline] sh
+[2026-11-17T10:29:23.431Z] + docker run --rm -i hadolint/hadolint:v2.15.1@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d
+[2026-11-17T10:29:31.063Z] [Pipeline] sh
+[2026-11-17T10:29:31.548Z] + scripts/validate_manifests.sh
+[2026-11-17T10:29:37.970Z] k8s/cluster     Summary: 7 resources found parsing stdin - Valid: 7, Invalid: 0, Errors: 0, Skipped: 0
+[2026-11-17T10:29:40.215Z] ......................................                                   [100%]
+[2026-11-17T10:29:40.215Z] ================================ tests coverage ================================
+[2026-11-17T10:29:40.215Z] _______________ coverage: platform linux, python 3.14.10-final-0 _______________
+[2026-11-17T10:29:40.215Z] 
+[2026-11-17T10:29:40.215Z] Name                 Stmts   Miss Branch BrPart  Cover   Missing
+[2026-11-17T10:29:40.215Z] ----------------------------------------------------------------
+[2026-11-17T10:29:40.215Z] webapp/__init__.py       0      0      0      0   100%
+[2026-11-17T10:29:40.215Z] webapp/app.py           40      0      2      0   100%
+[2026-11-17T10:29:40.215Z] webapp/config.py        26      0      6      0   100%
+[2026-11-17T10:29:40.215Z] webapp/metrics.py       27      0      2      0   100%
+[2026-11-17T10:29:40.215Z] webapp/wsgi.py          10      0      0      0   100%
+[2026-11-17T10:29:40.216Z] ----------------------------------------------------------------
+[2026-11-17T10:29:40.216Z] TOTAL                  103      0     10      0   100%
+[2026-11-17T10:29:40.216Z] Required test coverage of 95% reached. Total coverage: 100.00%
+[2026-11-17T10:29:40.216Z] 38 passed in 2.59s
+[2026-11-17T10:29:41.866Z] + rc=0
+[2026-11-17T10:29:41.866Z] + docker cp unit-jenkins-davine-webapp-10:/src/reports/junit.xml reports/junit.xml
+[2026-11-17T10:29:41.866Z] + docker rm unit-jenkins-davine-webapp-10
+[2026-11-17T10:29:42.169Z] + exit 0
+[2026-11-17T10:29:42.208Z] Post stage
+[2026-11-17T10:29:42.280Z] [Pipeline] junit
+[2026-11-17T10:29:42.315Z] Recording test results
+[2026-11-17T10:29:42.460Z] [Checks API] No suitable checks publisher found.
+[2026-11-17T10:29:42.596Z] [Pipeline] }
+[2026-11-17T10:29:42.845Z] [Pipeline] // stage
+[2026-11-17T10:29:42.899Z] [Pipeline] }
+[2026-11-17T10:29:43.466Z] k8s/rolling     Summary: 3 resources found parsing stdin - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0
+[2026-11-17T10:29:51.255Z] k8s/blue-green  Summary: 5 resources found parsing stdin - Valid: 5, Invalid: 0, Errors: 0, Skipped: 0
+[2026-11-17T10:29:51.331Z] [Pipeline] }
+[2026-11-17T10:29:51.457Z] [Pipeline] // stage
+[2026-11-17T10:29:51.513Z] [Pipeline] }
+[2026-11-17T10:29:51.636Z] [Pipeline] // parallel
+[2026-11-17T10:29:51.679Z] [Pipeline] }
+[2026-11-17T10:29:51.759Z] [Pipeline] // stage
+[2026-11-17T10:29:51.817Z] [Pipeline] stage
+[2026-11-17T10:29:51.833Z] [Pipeline] { (Package)
+[2026-11-17T10:29:51.940Z] [Pipeline] sh
+[2026-11-17T10:29:52.279Z] + date -u +%Y-%m-%dT%H:%M:%SZ
+[2026-11-17T10:29:52.280Z] + docker build --target runtime --provenance=false --build-arg APP_VERSION=1.1.0 --build-arg GIT_COMMIT=f621a3e --label org.opencontainers.image.title=davine-webapp --label org.opencontainers.image.version=1.1.0 --label org.opencontainers.image.revision=f621a3e24314faa104196462d444a86e4dba9960 --label org.opencontainers.image.source=https://github.com/ooseni/davine-week9-jenkins-cicd-deployments --label org.opencontainers.image.created=2026-11-17T10:29:52Z -t <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10 app/
+[2026-11-17T10:29:52.929Z] #0 building with "default" instance using docker driver
+[2026-11-17T10:29:52.929Z] 
+[2026-11-17T10:29:52.929Z] #1 [internal] load build definition from Dockerfile
+[2026-11-17T10:29:52.929Z] #1 transferring dockerfile: 2.45kB 0.0s done
+[2026-11-17T10:29:52.929Z] #1 DONE 0.1s
+[2026-11-17T10:29:53.267Z] 
+[2026-11-17T10:29:53.267Z] #2 [internal] load metadata for docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:53.267Z] #2 DONE 0.2s
+[2026-11-17T10:29:53.568Z] 
+[2026-11-17T10:29:53.568Z] #3 [internal] load .dockerignore
+[2026-11-17T10:29:53.568Z] #3 transferring context: 210B done
+[2026-11-17T10:29:53.568Z] #3 DONE 0.1s
+[2026-11-17T10:29:53.568Z] 
+[2026-11-17T10:29:53.568Z] #4 [internal] load build context
+[2026-11-17T10:29:53.568Z] #4 DONE 0.0s
+[2026-11-17T10:29:53.568Z] 
+[2026-11-17T10:29:53.568Z] #5 [python 1/1] FROM docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:53.568Z] #5 resolve docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+[2026-11-17T10:29:53.568Z] #5 resolve docker.io/library/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f 0.2s done
+[2026-11-17T10:29:53.568Z] #5 DONE 0.2s
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #4 [internal] load build context
+[2026-11-17T10:29:53.853Z] #4 transferring context: 360B 0.0s done
+[2026-11-17T10:29:53.853Z] #4 DONE 0.1s
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #6 [build 2/7] RUN python -m venv /opt/venv
+[2026-11-17T10:29:53.853Z] #6 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #7 [build 7/7] RUN python -m compileall -q webapp
+[2026-11-17T10:29:53.853Z] #7 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #8 [runtime 3/5] COPY --from=build /opt/venv /opt/venv
+[2026-11-17T10:29:53.853Z] #8 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #9 [build 5/7] COPY gunicorn.conf.py .
+[2026-11-17T10:29:53.853Z] #9 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #10 [build 1/7] WORKDIR /src
+[2026-11-17T10:29:53.853Z] #10 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #11 [runtime 1/5] RUN groupadd --system --gid 10001 app  && useradd --system --uid 10001 --gid app --no-create-home --shell /usr/sbin/nologin app
+[2026-11-17T10:29:53.853Z] #11 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #12 [build 4/7] RUN pip install --require-hashes --no-deps -r requirements.txt
+[2026-11-17T10:29:53.853Z] #12 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #13 [runtime 4/5] COPY --from=build /src/gunicorn.conf.py ./
+[2026-11-17T10:29:53.853Z] #13 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #14 [runtime 2/5] WORKDIR /app
+[2026-11-17T10:29:53.853Z] #14 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #15 [build 3/7] COPY requirements.txt .
+[2026-11-17T10:29:53.853Z] #15 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #16 [build 6/7] COPY webapp/ webapp/
+[2026-11-17T10:29:53.853Z] #16 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #17 [runtime 5/5] COPY --from=build /src/webapp ./webapp
+[2026-11-17T10:29:53.853Z] #17 CACHED
+[2026-11-17T10:29:53.853Z] 
+[2026-11-17T10:29:53.853Z] #18 exporting to image
+[2026-11-17T10:29:53.853Z] #18 exporting layers 0.0s done
+[2026-11-17T10:29:53.853Z] #18 exporting manifest sha256:76564740bcd87effe7eb340674b5387f8e482711405d479a7616d99b05c1dea6
+[2026-11-17T10:29:53.853Z] #18 exporting manifest sha256:76564740bcd87effe7eb340674b5387f8e482711405d479a7616d99b05c1dea6 0.1s done
+[2026-11-17T10:29:53.853Z] #18 exporting config sha256:69ad3e7b23497b521927d235d9d9ee499b73635d2efa68d0a0960ce1d24e5e3f
+[2026-11-17T10:29:54.145Z] #18 exporting config sha256:69ad3e7b23497b521927d235d9d9ee499b73635d2efa68d0a0960ce1d24e5e3f 0.1s done
+[2026-11-17T10:29:54.145Z] #18 naming to <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10 0.0s done
+[2026-11-17T10:29:54.145Z] #18 unpacking to <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10 0.0s done
+[2026-11-17T10:29:54.145Z] #18 DONE 0.3s
+[2026-11-17T10:29:55.204Z] [Pipeline] sh
+[2026-11-17T10:29:55.524Z] + scripts/smoke_test.sh <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10 1.1.0 f621a3e
+[2026-11-17T10:29:55.524Z] 
+[2026-11-17T10:29:55.524Z] == Smoke test <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10
+[2026-11-17T10:30:05.868Z]   PASS  Docker health check: healthy
+[2026-11-17T10:30:05.868Z]   PASS  runs as user: 10001:10001
+[2026-11-17T10:30:06.146Z]   PASS  /version version: 1.1.0
+[2026-11-17T10:30:06.146Z]   PASS  /version commit: f621a3e
+[2026-11-17T10:30:27.110Z] docker-agent seems to be removed or offline (java.lang.InterruptedException); will wait for 5 min 0 sec for it to come back online
+[2026-11-17T10:30:27.411Z] docker-agent is back online
+[2026-11-17T10:30:30.846Z]   PASS  /readyz status: ready
+[2026-11-17T10:30:30.846Z]   PASS  exit code with ENV_MODE=prod: 3
+[2026-11-17T10:30:30.846Z]   PASS  says why it refused: yes
+[2026-11-17T10:30:30.846Z] 
+[2026-11-17T10:30:30.846Z] == smoke test: 7 passed, 0 failed
+[2026-11-17T10:30:30.926Z] [Pipeline] }
+[2026-11-17T10:30:31.012Z] [Pipeline] // stage
+[2026-11-17T10:30:31.072Z] [Pipeline] stage
+[2026-11-17T10:30:31.084Z] [Pipeline] { (Push)
+[2026-11-17T10:30:31.188Z] [Pipeline] withCredentials
+[2026-11-17T10:30:31.203Z] Masking supported pattern matches of $REGISTRY_PASSWORD
+[2026-11-17T10:30:31.246Z] [Pipeline] {
+[2026-11-17T10:30:31.299Z] [Pipeline] sh
+[2026-11-17T10:30:31.605Z] + export DOCKER_CONFIG=/home/jenkins/agent/workspace/davine-webapp/.docker
+[2026-11-17T10:30:31.606Z] + registry=<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+[2026-11-17T10:30:31.606Z] + printf %s ****
+[2026-11-17T10:30:31.606Z] + docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+[2026-11-17T10:30:32.560Z] 
+[2026-11-17T10:30:32.561Z] WARNING! Your credentials are stored unencrypted in '/home/jenkins/agent/workspace/davine-webapp/.docker/config.json'.
+[2026-11-17T10:30:32.561Z] Configure a credential helper to remove this warning. See
+[2026-11-17T10:30:32.561Z] https://docs.docker.com/go/credential-store/
+[2026-11-17T10:30:32.561Z] 
+[2026-11-17T10:30:32.561Z] Login Succeeded
+[2026-11-17T10:30:32.561Z] + docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10
+[2026-11-17T10:30:32.830Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp]
+[2026-11-17T10:30:32.830Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:32.830Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:32.830Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:32.830Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.102Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.102Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.102Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.102Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.102Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.102Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.102Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.102Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.102Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.102Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.102Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.102Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.370Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.370Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.370Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.370Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.370Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.370Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.370Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.370Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.652Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.652Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.652Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.652Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.652Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.652Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.652Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.652Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.652Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.652Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.652Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.652Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.916Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.916Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.916Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.916Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.916Z] ce3c2a9291f8: Waiting
+[2026-11-17T10:30:33.916Z] 0e665593ff40: Waiting
+[2026-11-17T10:30:33.916Z] d6d089a6c0a2: Waiting
+[2026-11-17T10:30:33.916Z] 37fb86c2a767: Waiting
+[2026-11-17T10:30:33.916Z] d6d089a6c0a2: Layer already exists
+[2026-11-17T10:30:33.916Z] 37fb86c2a767: Layer already exists
+[2026-11-17T10:30:33.916Z] fc9d9598d9c5: Waiting
+[2026-11-17T10:30:33.916Z] 63bea6e5dad4: Waiting
+[2026-11-17T10:30:33.916Z] b4276ca0f323: Waiting
+[2026-11-17T10:30:33.916Z] 3d3986427f18: Waiting
+[2026-11-17T10:30:33.916Z] ce3c2a9291f8: Layer already exists
+[2026-11-17T10:30:33.916Z] 0e665593ff40: Layer already exists
+[2026-11-17T10:30:34.183Z] fc9d9598d9c5: Waiting
+[2026-11-17T10:30:34.183Z] 63bea6e5dad4: Waiting
+[2026-11-17T10:30:34.183Z] b4276ca0f323: Waiting
+[2026-11-17T10:30:34.183Z] 3d3986427f18: Waiting
+[2026-11-17T10:30:34.184Z] fc9d9598d9c5: Layer already exists
+[2026-11-17T10:30:34.184Z] 63bea6e5dad4: Layer already exists
+[2026-11-17T10:30:34.184Z] b4276ca0f323: Layer already exists
+[2026-11-17T10:30:34.184Z] 3d3986427f18: Layer already exists
+[2026-11-17T10:30:34.184Z] 18ff5f1a6edc: Waiting
+[2026-11-17T10:30:34.184Z] 18ff5f1a6edc: Waiting
+[2026-11-17T10:30:34.475Z] 18ff5f1a6edc: Layer already exists
+[2026-11-17T10:30:35.457Z] 1.1.0-f621a3e-b10: digest: sha256:76564740bcd87effe7eb340674b5387f8e482711405d479a7616d99b05c1dea6 size: 2000
+[2026-11-17T10:30:35.457Z] + docker inspect --format {{index .RepoDigests 0}} <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10
+[2026-11-17T10:30:35.757Z] + docker logout <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+[2026-11-17T10:30:35.757Z] Removing login credentials for <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+[2026-11-17T10:30:35.830Z] [Pipeline] }
+[2026-11-17T10:30:36.111Z] [Pipeline] // withCredentials
+[2026-11-17T10:30:36.173Z] [Pipeline] script
+[2026-11-17T10:30:36.194Z] [Pipeline] {
+[2026-11-17T10:30:36.275Z] [Pipeline] readFile
+[2026-11-17T10:30:36.377Z] [Pipeline] }
+[2026-11-17T10:30:36.560Z] [Pipeline] // script
+[2026-11-17T10:30:36.631Z] [Pipeline] echo
+[2026-11-17T10:30:36.645Z] Pushed <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp@sha256:76564740bcd87effe7eb340674b5387f8e482711405d479a7616d99b05c1dea6. Deploying by digest, so the cluster runs exactly these bytes.
+[2026-11-17T10:30:36.659Z] [Pipeline] }
+[2026-11-17T10:30:36.770Z] [Pipeline] // stage
+[2026-11-17T10:30:36.831Z] [Pipeline] stage
+[2026-11-17T10:30:36.844Z] [Pipeline] { (Deploy)
+[2026-11-17T10:30:36.930Z] [Pipeline] script
+[2026-11-17T10:30:36.949Z] [Pipeline] {
+[2026-11-17T10:30:37.022Z] [Pipeline] }
+[2026-11-17T10:30:37.095Z] [Pipeline] // script
+[2026-11-17T10:30:37.157Z] [Pipeline] catchError
+[2026-11-17T10:30:37.171Z] [Pipeline] {
+[2026-11-17T10:30:37.259Z] [Pipeline] withCredentials
+[2026-11-17T10:30:37.319Z] Masking supported pattern matches of $KUBECONFIG or $REGISTRY_PASSWORD
+[2026-11-17T10:30:37.338Z] [Pipeline] {
+[2026-11-17T10:30:37.389Z] [Pipeline] sh
+[2026-11-17T10:30:37.713Z] + export REGISTRY_SERVER=<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+[2026-11-17T10:30:37.714Z] + export CHANGE_CAUSE=Jenkins build #10: 1.1.0 (f621a3e), ENV_MODE=prod
+[2026-11-17T10:30:37.714Z] + [ blue-green = blue-green ]
+[2026-11-17T10:30:37.714Z] + scripts/blue_green.sh deploy <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp@sha256:76564740bcd87effe7eb340674b5387f8e482711405d479a7616d99b05c1dea6 1.1.0 prod
+[2026-11-17T10:30:38.730Z] [10:30:38] pull secret ecr-pull refreshed for <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+[2026-11-17T10:30:39.322Z] [10:30:39] live slot: blue (1.1.0); deploying 1.1.0 to the idle slot: green
+[2026-11-17T10:30:42.420Z] configmap/web-config-bg-8dthdcf7d4 created
+[2026-11-17T10:30:43.165Z] deployment.apps/davine-webapp-green configured
+[2026-11-17T10:30:45.500Z] Waiting for deployment "davine-webapp-green" rollout to finish: 1 out of 2 new replicas have been updated...
+[2026-11-17T10:31:26.785Z] [10:31:25] failing fast: davine-webapp-green-6b887759cb-hqnzw is in CrashLoopBackOff after 2 restarts
+[2026-11-17T10:31:26.785Z] [10:31:25] pods of davine-webapp-green:
+[2026-11-17T10:31:26.785Z]     davine-webapp-green-6965d45db5-5vgs7   1/1   Running            5 (50m ago)   88m   <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+[2026-11-17T10:31:26.785Z]     davine-webapp-green-6965d45db5-d72md   1/1   Running            5 (49m ago)   88m   <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+[2026-11-17T10:31:26.785Z]     davine-webapp-green-6b887759cb-hqnzw   0/1   CrashLoopBackOff   2 (6s ago)    42s   <PRIVATE_IP>   k3d-davine-wk9-server-0   <none>   <none>
+[2026-11-17T10:31:26.785Z] [10:31:25] conditions of davine-webapp-green:
+[2026-11-17T10:31:26.785Z]     Available=True MinimumReplicasAvailable: Deployment has minimum availability.
+[2026-11-17T10:31:26.785Z]     Progressing=True ReplicaSetUpdated: ReplicaSet "davine-webapp-green-6b887759cb" is progressing.
+[2026-11-17T10:31:26.785Z] [10:31:25] last log lines of davine-webapp-green-6b887759cb-hqnzw, which is not ready:
+[2026-11-17T10:31:26.785Z]     davine-webapp: refusing to start: ENV_MODE must be one of development, staging, production; got 'prod'
+[2026-11-17T10:31:26.785Z] [10:31:25] recent events of davine-webapp-green-6b887759cb-hqnzw (an image still downloading shows here):
+[2026-11-17T10:31:26.785Z]     2026-11-17T10:31:14Z   Pulled      Container image "<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp@sha256:76564740bcd87effe7eb340674b5387f8e482711405d479a7616d99b05c1dea6" already present on machine and can be accessed by the pod
+[2026-11-17T10:31:26.785Z]     2026-11-17T10:31:17Z   Unhealthy   Readiness probe failed: Get "http://<PRIVATE_IP>:8080/readyz": dial tcp <PRIVATE_IP>:8080: connect: connection refused
+[2026-11-17T10:31:26.785Z]     2026-11-17T10:31:24Z   BackOff     Back-off restarting failed container app in pod davine-webapp-green-6b887759cb-hqnzw_davine-space(c73e28b1-a5a1-4afc-bbbf-72daa3a87801)
+[2026-11-17T10:31:26.785Z] [10:31:25] ERROR: the green slot never became ready, so the switch was not made: users stayed on blue
+[2026-11-17T10:31:26.853Z] [Pipeline] }
+[2026-11-17T10:31:26.934Z] [Pipeline] // withCredentials
+[2026-11-17T10:31:26.983Z] [Pipeline] }
+[2026-11-17T10:31:27.008Z] ERROR: script returned exit code 1
+[2026-11-17T10:31:27.008Z] Setting overall build result to FAILURE
+[2026-11-17T10:31:27.102Z] [Pipeline] // catchError
+[2026-11-17T10:31:27.140Z] [Pipeline] }
+[2026-11-17T10:31:27.219Z] [Pipeline] // stage
+[2026-11-17T10:31:27.297Z] [Pipeline] stage
+[2026-11-17T10:31:27.309Z] [Pipeline] { (Verify)
+[2026-11-17T10:31:27.440Z] Stage "Verify" skipped due to when conditional
+[2026-11-17T10:31:27.470Z] [Pipeline] getContext
+[2026-11-17T10:31:27.514Z] [Pipeline] }
+[2026-11-17T10:31:27.614Z] [Pipeline] // stage
+[2026-11-17T10:31:27.683Z] [Pipeline] stage
+[2026-11-17T10:31:27.700Z] [Pipeline] { (Rollback)
+[2026-11-17T10:31:27.832Z] [Pipeline] withCredentials
+[2026-11-17T10:31:27.898Z] Masking supported pattern matches of $KUBECONFIG
+[2026-11-17T10:31:27.921Z] [Pipeline] {
+[2026-11-17T10:31:27.979Z] [Pipeline] sh
+[2026-11-17T10:31:28.307Z] + [ blue-green = blue-green ]
+[2026-11-17T10:31:28.307Z] + scripts/blue_green.sh rollback
+[2026-11-17T10:31:28.307Z] [10:31:28] live never left blue: users were not affected by the failed release
+[2026-11-17T10:31:28.581Z] [10:31:28] scaling the failed green slot to 0
+[2026-11-17T10:31:29.215Z] 
+[2026-11-17T10:31:29.215Z] == Verify 1.1.0 on the blue-green live slot (blue) at http://k3d-davine-wk9-server-0:30081
+[2026-11-17T10:31:34.619Z]   PASS  Service gives 10 answers in a row from 1.1.0 (within 60 s): yes
+[2026-11-17T10:31:34.619Z]   PASS  GET /healthz: 200
+[2026-11-17T10:31:34.619Z]   PASS  GET /readyz: 200
+[2026-11-17T10:31:34.619Z]   PASS  /version reports: 1.1.0
+[2026-11-17T10:31:34.619Z]   PASS  /metrics build_info version: 1.1.0
+[2026-11-17T10:31:36.056Z]   PASS  30 requests answered by: 1.1.0 x30
+[2026-11-17T10:31:36.057Z]   PASS  davine-webapp-blue ready replicas: 2
+[2026-11-17T10:31:36.057Z]   PASS  davine-webapp-blue updated replicas: 2
+[2026-11-17T10:31:36.057Z] 
+[2026-11-17T10:31:36.057Z] == verify 1.1.0: 8 passed, 0 failed
+[2026-11-17T10:31:36.108Z] [Pipeline] }
+[2026-11-17T10:31:36.270Z] [Pipeline] // withCredentials
+[2026-11-17T10:31:36.345Z] [Pipeline] script
+[2026-11-17T10:31:36.369Z] [Pipeline] {
+[2026-11-17T10:31:36.485Z] [Pipeline] }
+[2026-11-17T10:31:36.604Z] [Pipeline] // script
+[2026-11-17T10:31:36.652Z] [Pipeline] }
+[2026-11-17T10:31:36.773Z] [Pipeline] // stage
+[2026-11-17T10:31:36.891Z] [Pipeline] stage
+[2026-11-17T10:31:36.907Z] [Pipeline] { (Declarative: Post Actions)
+[2026-11-17T10:31:37.019Z] [Pipeline] archiveArtifacts
+[2026-11-17T10:31:37.046Z] Archiving artifacts
+[2026-11-17T10:31:37.138Z] [Pipeline] sh
+[2026-11-17T10:31:37.477Z] + rm -rf /home/jenkins/agent/workspace/davine-webapp/.docker
+[2026-11-17T10:31:37.477Z] + docker image rm davine-webapp:build-1.1.0-f621a3e-b10 davine-webapp:test-1.1.0-f621a3e-b10 <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/davine-wk9-webapp:1.1.0-f621a3e-b10
+[2026-11-17T10:31:38.165Z] [Pipeline] echo
+[2026-11-17T10:31:38.177Z] The build failed. If it got as far as Deploy, the Rollback stage restored the previous release.
+[2026-11-17T10:31:38.486Z] [Pipeline] }
+[2026-11-17T10:31:38.852Z] [Pipeline] // stage
+[2026-11-17T10:31:39.022Z] [Pipeline] }
+[2026-11-17T10:31:39.302Z] [Pipeline] // timeout
+[2026-11-17T10:31:39.353Z] [Pipeline] }
+[2026-11-17T10:31:39.445Z] [Pipeline] // timestamps
+[2026-11-17T10:31:39.503Z] [Pipeline] }
+[2026-11-17T10:31:39.574Z] [Pipeline] // withEnv
+[2026-11-17T10:31:39.622Z] [Pipeline] }
+[2026-11-17T10:31:39.911Z] [Pipeline] // node
+[2026-11-17T10:31:40.035Z] [Pipeline] End of Pipeline
+[2026-11-17T10:31:40.979Z] Finished: FAILURE

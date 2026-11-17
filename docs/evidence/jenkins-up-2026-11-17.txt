@@ -1,0 +1,12 @@
+== 1. Registry credentials
+[08:12:54] assuming the push-only role arn:aws:iam::<ACCOUNT_ID>:role/davine-wk9-jenkins-ecr-push
+[08:13:02] token requested as: arn:aws:sts::<ACCOUNT_ID>:assumed-role/davine-wk9-jenkins-ecr-push/<SESSION>
+[08:13:06] ECR token stored in .live/ecr-token; ECR says it expires at 2026-11-17T21:13:05.692000+01:00
+== 2. Jenkins admin password
+[08:13:06] generated a random admin password in .live/jenkins-admin-password
+== 3. Controller
+  PASS  Jenkins answers on http://127.0.0.1:8080: 200
+== 4. Agent
+  PASS  agent docker-agent online: yes
+== Jenkins up: 2 passed, 0 failed
+[08:18:03] open http://127.0.0.1:8080 and sign in as admin; the password is in .live/jenkins-admin-password
