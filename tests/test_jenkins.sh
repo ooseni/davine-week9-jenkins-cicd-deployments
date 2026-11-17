@@ -15,7 +15,8 @@ name=davine-wk9-jenkins-test
 port=18080
 url="http://127.0.0.1:$port"
 work=$(mktemp -d)
-cleanup() { docker rm -f "$name" >/dev/null 2>&1 || true; rm -rf "$work"; }
+# -v: the Jenkins image declares /var/jenkins_home a volume; without it every run leaves ~250 MB behind.
+cleanup() { docker rm -fv "$name" >/dev/null 2>&1 || true; rm -rf "$work"; }
 trap cleanup EXIT
 
 # Dummy secrets, readable by the jenkins user whatever this machine's user ID is.
