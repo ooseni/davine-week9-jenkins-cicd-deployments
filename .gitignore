@@ -552,3 +552,9 @@ tmbootpicker.efi
 
 # Log files created by default by the nohup command
 nohup.out
+
+# =============================================================================
+# Project exceptions (kept last, because the last matching rule wins)
+# =============================================================================
+# Redacted traffic-probe logs from the live run are evidence that docs/testing.md links to.
+!docs/evidence/*.log
