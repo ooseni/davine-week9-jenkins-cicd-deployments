@@ -12,6 +12,7 @@ def test_home_page_shows_the_release(client):
     assert "release 1.0.0" in body
     assert "abc1234" in body
     assert "production" in body
+    assert "pod-a" in body
 
 
 def test_healthz_is_ok(client):
@@ -26,12 +27,13 @@ def test_readyz_reports_ready_with_the_env_mode(client):
     assert response.get_json() == {"status": "ready", "env_mode": "production"}
 
 
-def test_version_reports_the_built_release(client):
+def test_version_reports_the_built_release_and_the_pod(client):
     assert client.get("/version").get_json() == {
         "app": "davine-webapp",
         "version": "1.0.0",
         "commit": "abc1234",
         "env_mode": "production",
+        "pod": "pod-a",
     }
 
 

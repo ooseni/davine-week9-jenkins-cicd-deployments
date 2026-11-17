@@ -1,7 +1,7 @@
 """davine-webapp: the week 7 web app, now built from source so the pipeline can test it.
 
 Routes:
-    /         the home page, showing the release that answered
+    /         the home page, showing the release and the pod that answered
     /healthz  liveness: the process is up and answering
     /readyz   readiness: the settings loaded, so the pod may receive traffic
     /version  the release as JSON, for scripts and the pipeline's Verify stage
@@ -35,6 +35,8 @@ def create_app(config: Config) -> Flask:
             "version": config.version,
             "commit": config.commit,
             "env_mode": config.env_mode,
+            # Which pod answered: refresh the page during a rolling update and watch it change.
+            "pod": config.pod_name,
         }
 
     @app.get("/")
