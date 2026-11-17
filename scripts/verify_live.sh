@@ -30,16 +30,27 @@ check "lifecycle rules" 2 "$(jq '.rules | length' <<<"$lifecycle")"
 section "Images pushed by Jenkins"
 images=$(aws ecr describe-images --repository-name "$repo" --output json |
     jq -c '.imageDetails | sort_by(.imagePushedAt)[]')
-printf '  %-28s %-19s %-9s %s\n' TAG DIGEST SIZE_MB SCAN
+# describe-images no longer carries scan results, so each image's findings are read separately.
+printf '  %-22s %-19s %-8s %-9s %s\n' TAG DIGEST SIZE_MB SCAN FINDINGS
+complete=0
 while read -r image; do
-    printf '  %-28s %-19s %-9s %s\n' "$(jq -r '.imageTags[0] // "-"' <<<"$image")" \
-        "$(jq -r '.imageDigest[0:19]' <<<"$image")" \
-        "$(jq -r '(.imageSizeInBytes / 1048576 * 10 | floor) / 10' <<<"$image")" \
-        "$(jq -r '(.imageScanStatus.status // "-") + " " + ((.imageScanFindingsSummary.findingSeverityCounts // {}) | to_entries | map("\(.key)=\(.value)") | join(","))' <<<"$image")"
+    digest=$(jq -r .imageDigest <<<"$image")
+    scan=$(aws ecr describe-image-scan-findings --repository-name "$repo" --image-id "imageDigest=$digest" --output json 2>/dev/null || echo '{}')
+    status=$(jq -r '.imageScanStatus.status // "-"' <<<"$scan")
+    [[ "$status" == COMPLETE ]] && complete=$((complete + 1))
+    printf '  %-22s %-19s %-8s %-9s %s\n' "$(jq -r '.imageTags[0] // "-"' <<<"$image")" "${digest:0:19}" \
+        "$(jq -r '(.imageSizeInBytes / 1048576 * 10 | floor) / 10' <<<"$image")" "$status" \
+        "$(jq -r '(.imageScanFindings.findingSeverityCounts // {}) | to_entries | map("\(.key)=\(.value)") | join(" ")' <<<"$scan")"
 done <<<"$images"
 count=$(grep -c . <<<"$images")
 check "every image has a unique tag" "$count" "$(jq -r '.imageTags[0]' <<<"$images" | sort -u | grep -c .)"
-check "scans completed" "$count" "$(jq -r 'select(.imageScanStatus.status == "COMPLETE") | .imageDigest' <<<"$images" | grep -c . || true)"
+check "scans completed" "$count" "$complete"
+newest=$(jq -r .imageDigest <<<"$images" | tail -1)
+echo "  HIGH findings in the newest image (package, CVE):"
+aws ecr describe-image-scan-findings --repository-name "$repo" --image-id "imageDigest=$newest" --output json |
+    jq -r '.imageScanFindings.findings[] | select(.severity == "HIGH")
+        | "    \((.attributes[] | select(.key == "package_name") | .value)) \((.attributes[] | select(.key == "package_version") | .value))  \(.name)"'
+
 
 section "Immutability: moving an existing tag to another image is refused"
 first_tag=$(jq -r '.imageTags[0]' <<<"$images" | head -1)
@@ -96,7 +107,7 @@ if [[ -n "$live_slot" ]]; then
     echo "  Blue-green slots (live: $live_slot):"
     for slot in blue green; do
         printf '    %-6s ready %s/%s  %s\n' "$slot" \
-            "$(admin get deployment "davine-webapp-$slot" -o jsonpath='{.status.readyReplicas}' | sed 's/^$/0/')" \
+            "$(r=$(admin get deployment "davine-webapp-$slot" -o jsonpath='{.status.readyReplicas}'); echo "${r:-0}")" \
             "$(admin get deployment "davine-webapp-$slot" -o jsonpath='{.spec.replicas}')" \
             "$(admin get deployment "davine-webapp-$slot" -o jsonpath='{.spec.template.spec.containers[0].image}' | redact)"
     done
@@ -108,8 +119,8 @@ printf '    blue-green (NodePort 30081): %s\n' "$(curl -s -m 5 "$BG_LIVE_URL/ver
 section "Jenkins builds"
 curl -sf -u "$jauth" "$jenkins/api/json?tree=builds%5Bnumber,result,displayName,description,duration,timestamp%5D" |
     jq -r '.builds | sort_by(.number)[] | "  #\(.number)  \(.result)  \(.displayName | sub("^#[0-9]+ "; ""))  \(.description // "")  \((.duration / 1000 | floor))s  started \(.timestamp / 1000 | strftime("%H:%M:%SZ"))"'
-check "builds that failed only after rolling back" "$(curl -sf -u "$jauth" "$jenkins/api/json?tree=builds%5Bresult,description%5D" |
-    jq '[.builds[] | select(.result == "FAILURE")] | length')" \
-    "$(curl -sf -u "$jauth" "$jenkins/api/json?tree=builds%5Bresult,description%5D" |
-        jq '[.builds[] | select(.result == "FAILURE" and ((.description // "") | test("rolled back")))] | length')"
+builds=$(curl -sf -u "$jauth" "$jenkins/api/json?tree=builds%5Bresult,description%5D")
+check "bad-release rehearsals that finished, all rolled back" \
+    "$(jq '[.builds[] | select(.result == "FAILURE" and ((.description // "") | test("bad release")))] | length' <<<"$builds")" \
+    "$(jq '[.builds[] | select(.result == "FAILURE" and ((.description // "") | test("bad release.*rolled back")))] | length' <<<"$builds")"
 summary "live verification"
