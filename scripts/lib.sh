@@ -81,6 +81,18 @@ probe_stop() {
     served=$(awk '$2 == "200" { n[$3]++ } END { for (v in n) printf "%s%s x%d", (s++ ? ", " : ""), v, n[v] }' "$probe_log")
     log "traffic during the change: $PROBE_TOTAL requests, $PROBE_FAILED failed; answered by ${served:-nothing}"
 }
+# probe_within_budget: 0 when at most MAX_FAILED_PERCENT (default 1) of the probe's requests failed.
+# A zero-tolerance gate rolled back a good release in the live run: one request timed out on the
+# loaded host before the Deployment had even changed. A release that breaks the app fails far more
+# than 1% of requests; every failure is still reported above.
+probe_within_budget() {
+    local budget=${MAX_FAILED_PERCENT:-1}
+    if ((PROBE_FAILED * 100 > PROBE_TOTAL * budget)); then
+        log "that is more than the $budget% error budget"
+        return 1
+    fi
+    if ((PROBE_FAILED > 0)); then log "within the $budget% error budget"; fi
+}
 
 # --- Registry pull secret -----------------------------------------------------------------------
 # With REGISTRY_SERVER, REGISTRY_USERNAME and REGISTRY_PASSWORD set (the pipeline passes its ECR

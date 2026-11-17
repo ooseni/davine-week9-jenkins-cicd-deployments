@@ -128,7 +128,7 @@ deploy() {
     if [[ -n "$live_version" ]]; then
         sleep 5
         probe_stop
-        [[ "$PROBE_FAILED" -eq 0 ]] || die "users saw $PROBE_FAILED failed requests during the switch"
+        probe_within_budget || die "users saw $PROBE_FAILED failed requests during the switch"
     fi
     if [[ -n "$live_version" ]]; then
         log "live is now $idle ($version). $live keeps $(ready_in "$live") ready pods of $live_version for an instant rollback"

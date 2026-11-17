@@ -10,7 +10,8 @@
 # CHANGE_CAUSE (environment) is recorded on the Deployment and shows in `kubectl rollout history`.
 #
 # Before applying, it records the running release in $STATE_DIR/previous-rolling.env for
-# rollback_rolling.sh. Exit 0 when the rollout completed and every probe request succeeded.
+# rollback_rolling.sh. Exit 0 when the rollout completed and at most 1% of the probe's requests
+# failed (MAX_FAILED_PERCENT).
 set -euo pipefail
 # shellcheck source=scripts/lib.sh
 source "$(dirname "$0")/lib.sh"
@@ -86,10 +87,7 @@ fi
 if [[ -n "$previous_version" ]]; then
     sleep 3 # keep probing a moment after the last old pod has gone
     probe_stop
-    if [[ "$PROBE_FAILED" -gt 0 ]]; then
-        log "users saw $PROBE_FAILED failed requests during the rollout"
-        rc=1
-    fi
+    probe_within_budget || rc=1
 fi
 kc rollout history deployment/davine-webapp | tail -n 4
 exit "$rc"
