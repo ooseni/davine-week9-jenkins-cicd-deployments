@@ -33,7 +33,12 @@ COPY tests/ tests/
 CMD ["pytest"]
 
 FROM python AS runtime
-RUN groupadd --system --gid 10001 app \
+# Apply the Debian security updates published since the base image was built. ECR's scan of the
+# first live images found 3 HIGH findings in OS packages; zlib's had a fixed version available.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 10001 app \
  && useradd --system --uid 10001 --gid app --no-create-home --shell /usr/sbin/nologin app
 WORKDIR /app
 COPY --from=build /opt/venv /opt/venv
