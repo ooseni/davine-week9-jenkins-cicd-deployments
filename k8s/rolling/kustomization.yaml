@@ -1,0 +1,16 @@
+# The rolling-update release of davine-webapp. scripts/deploy_rolling.sh layers a generated
+# overlay on top that sets the image digest, ENV_MODE and the change-cause for each release.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: davine-space
+resources:
+  - deployment.yaml
+  - service.yaml
+configMapGenerator:
+  - name: web-config
+    literals:
+      - ENV_MODE=production
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: davine-week9
+      app.kubernetes.io/managed-by: jenkins

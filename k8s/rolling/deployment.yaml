@@ -1,0 +1,103 @@
+# davine-webapp, week 7's Deployment rebuilt for safe automated releases.
+#
+# Rolling update: one extra pod at a time (maxSurge 1) and never fewer than 3 ready
+# (maxUnavailable 0). A new pod only replaces an old one after its readiness probe passes, so a
+# release that cannot start leaves the old pods serving and the rollout stuck. After
+# progressDeadlineSeconds the Deployment reports the rollout as failed; the pipeline then rolls back.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: davine-webapp
+  namespace: davine-space
+  labels:
+    app.kubernetes.io/name: davine-webapp
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=The image here is a placeholder. The deploy scripts always set it by digest (repository@sha256).
+    checkov.io/skip2: CKV_K8S_15=Images are deployed by digest, which cannot change, so IfNotPresent never runs stale code.
+    checkov.io/skip3: CKV2_K8S_6=The NetworkPolicy is in k8s/cluster, applied by the cluster admin so the deployer cannot weaken it.
+spec:
+  replicas: 3
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 60
+  minReadySeconds: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: davine-webapp
+  template:
+    metadata:
+      labels:
+        app: davine-webapp
+      annotations:
+        # Week 8's Prometheus finds the pods by these annotations.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: /metrics
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ecr-pull
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          # Placeholder. The deploy script sets the ECR repository and the image digest.
+          image: davine-webapp:set-by-deploy-script
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            # The generated name carries a hash of the content, so a config change is a new
+            # ReplicaSet and `rollout undo` brings the old config back with the old image.
+            - configMapRef:
+                name: web-config
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+            timeoutSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          lifecycle:
+            # Keep serving for 5 s after the pod is marked for deletion, while the Service
+            # stops routing to it. Without this pause, requests in flight can be refused.
+            preStop:
+              sleep:
+                seconds: 5
+          resources:
+            # A request below what the app needs under load lets a busy node starve it until
+            # its probes time out (found in the first end-to-end run). See docs/testing.md.
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

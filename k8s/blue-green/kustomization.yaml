@@ -1,0 +1,16 @@
+# The blue-green pair. Applied once to create the slots and Services; after that,
+# scripts/blue_green.sh changes images, replicas and selectors.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: davine-space
+resources:
+  - deployments.yaml
+  - services.yaml
+configMapGenerator:
+  - name: web-config-bg
+    literals:
+      - ENV_MODE=production
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: davine-week9
+      app.kubernetes.io/managed-by: jenkins

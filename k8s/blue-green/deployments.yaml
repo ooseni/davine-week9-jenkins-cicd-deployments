@@ -1,0 +1,185 @@
+# Blue-green: two complete copies of davine-webapp, "blue" and "green". Only one receives users
+# (see services.yaml). A release goes to the idle copy, is tested there through the preview
+# Service, and then the live Service's selector is switched to it in one API call. Switching
+# back is the rollback, and it is instant because the old copy is still running.
+#
+# Both start at 0 replicas: scripts/blue_green.sh sets the image and scales the slot it deploys.
+# The manifests are applied only to create the slots, so a re-apply never resets a live slot.
+# The two documents differ only in the slot name.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: davine-webapp-blue
+  namespace: davine-space
+  labels:
+    app: davine-webapp-bg
+    slot: blue
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=The image here is a placeholder. The deploy scripts always set it by digest (repository@sha256).
+    checkov.io/skip2: CKV_K8S_15=Images are deployed by digest, which cannot change, so IfNotPresent never runs stale code.
+    checkov.io/skip3: CKV2_K8S_6=The NetworkPolicy is in k8s/cluster, applied by the cluster admin so the deployer cannot weaken it.
+spec:
+  replicas: 0
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 60
+  selector:
+    matchLabels:
+      app: davine-webapp-bg
+      slot: blue
+  template:
+    metadata:
+      labels:
+        app: davine-webapp-bg
+        slot: blue
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: /metrics
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ecr-pull
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: davine-webapp:set-by-deploy-script
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: web-config-bg
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+            timeoutSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 5
+          resources:
+            # A request below what the app needs under load lets a busy node starve it until
+            # its probes time out (found in the first end-to-end run). See docs/testing.md.
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: davine-webapp-green
+  namespace: davine-space
+  labels:
+    app: davine-webapp-bg
+    slot: green
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=The image here is a placeholder. The deploy scripts always set it by digest (repository@sha256).
+    checkov.io/skip2: CKV_K8S_15=Images are deployed by digest, which cannot change, so IfNotPresent never runs stale code.
+    checkov.io/skip3: CKV2_K8S_6=The NetworkPolicy is in k8s/cluster, applied by the cluster admin so the deployer cannot weaken it.
+spec:
+  replicas: 0
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 60
+  selector:
+    matchLabels:
+      app: davine-webapp-bg
+      slot: green
+  template:
+    metadata:
+      labels:
+        app: davine-webapp-bg
+        slot: green
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: /metrics
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ecr-pull
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: davine-webapp:set-by-deploy-script
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: web-config-bg
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+            timeoutSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 5
+          resources:
+            # A request below what the app needs under load lets a busy node starve it until
+            # its probes time out (found in the first end-to-end run). See docs/testing.md.
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
