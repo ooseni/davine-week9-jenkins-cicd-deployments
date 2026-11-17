@@ -79,8 +79,11 @@ unclassified:
     allPipelines: true
 
 # The pipeline job, connected to the GitHub repository. Jenkins reads the Jenkinsfile from `main`
-# and polls GitHub for new commits (the trigger is in the Jenkinsfile), so nothing on this machine
-# has to be reachable from the internet. Week 5 exposed Jenkins through an ngrok tunnel instead.
+# and polls GitHub for new commits, so nothing on this machine has to be reachable from the
+# internet. Week 5 exposed Jenkins through an ngrok tunnel instead.
+# The polling trigger is declared here as well as in the Jenkinsfile: Configuration as Code
+# regenerates the job at every controller start, which drops a trigger that only the Jenkinsfile
+# set, so a restarted controller stopped polling until someone started a build by hand.
 jobs:
   - script: >
       pipelineJob('davine-webapp') {
@@ -88,6 +91,13 @@ jobs:
         description('Build, test, package, push to Amazon ECR, deploy to Kubernetes (rolling or blue-green), verify, and roll back on failure.')
         properties {
           githubProjectUrl('${GIT_REPO_URL:-https://github.com/ooseni/davine-week9-jenkins-cicd-deployments}')
+          pipelineTriggers {
+            triggers {
+              pollSCM {
+                scmpoll_spec('H/2 * * * *')
+              }
+            }
+          }
         }
         definition {
           cpsScm {

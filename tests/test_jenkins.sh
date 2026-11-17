@@ -63,6 +63,9 @@ job=$(api '/job/davine-webapp/config.xml')
 check "job reads Jenkinsfile from main of this repository" yes "$(grep -q '<scriptPath>Jenkinsfile</scriptPath>' <<<"$job" &&
     grep -q 'github.com/ooseni/davine-week9-jenkins-cicd-deployments.git' <<<"$job" &&
     grep -q '<name>\*/main</name>' <<<"$job" && echo yes || echo no)"
+# The job must poll from the moment the controller starts, not only after its first build.
+check "job polls GitHub every 2 minutes from start-up" yes "$(grep -q '<spec>H/2 \* \* \* \*</spec>' <<<"$job" &&
+    grep -q 'hudson.triggers.SCMTrigger' <<<"$job" && echo yes || echo no)"
 creds=$(api '/credentials/store/system/domain/_/api/json?tree=credentials[id]' | jq -r '[.credentials[].id] | sort | join(",")')
 check "credentials" "ecr-registry,k3d-deployer-kubeconfig" "$creds"
 check "ECR repository passed in as a global variable" yes \
