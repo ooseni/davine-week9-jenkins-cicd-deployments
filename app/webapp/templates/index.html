@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>davine-webapp {{ version }}</title>
+  <style>
+    :root { color-scheme: light dark; --accent: #6e40c9; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 3rem 1rem; line-height: 1.5; }
+    main { max-width: 40rem; margin: 0 auto; }
+    h1 { margin: 0 0 .25rem; }
+    .release { display: inline-block; padding: .2rem .6rem; border-radius: .4rem;
+               background: var(--accent); color: #fff; font-weight: 600; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.2rem; margin-top: 2rem; }
+    dt { font-weight: 600; }
+    dd { margin: 0; font-family: ui-monospace, monospace; }
+    footer { margin-top: 3rem; font-size: .9rem; opacity: .75; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>davine-webapp</h1>
+    <p>Delivered by the Jenkins pipeline: build, test, package, push, rolling deploy, verify.</p>
+    <p><span class="release">release {{ version }}</span></p>
+    <dl>
+      <dt>Version</dt><dd>{{ version }}</dd>
+      <dt>Commit</dt><dd>{{ commit }}</dd>
+      <dt>Environment</dt><dd>{{ env_mode }}</dd>
+    </dl>
+    <footer>Davine Technologies internship, week 9: advanced CI/CD and deployment strategies.</footer>
+  </main>
+</body>
+</html>

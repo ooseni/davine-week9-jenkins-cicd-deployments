@@ -1,0 +1,31 @@
+[project]
+name = "davine-webapp"
+description = "The week 9 web app: built, tested and deployed by the Jenkins pipeline."
+requires-python = ">=3.14"
+dynamic = ["version"]  # the release number lives in ../VERSION and is baked into the image
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = [
+    "-q",
+    "--strict-markers",
+    "--junitxml=reports/junit.xml",
+    "--cov=webapp",
+    "--cov-report=term-missing",
+    "--cov-fail-under=95",
+]
+
+[tool.coverage.run]
+branch = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, isort, bugbear, pyupgrade, bandit (security), simplify
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # pytest asserts are the point of a test
