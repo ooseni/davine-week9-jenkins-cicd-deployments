@@ -1,0 +1,27 @@
+# Trivy findings accepted on purpose, each with its reason. Run: trivy config --ignorefile .trivyignore.yaml .
+misconfigurations:
+  - id: KSV-0048
+    paths: ["k8s/cluster/deployer-rbac.yaml"]
+    statement: >-
+      The deployer's job is to roll Deployments out and back. It is limited to one namespace,
+      cannot delete, cannot exec into pods and cannot touch pods directly beyond reading them.
+  - id: KSV-0049
+    paths: ["k8s/cluster/deployer-rbac.yaml"]
+    statement: >-
+      Each release writes its ConfigMap (the name carries a content hash, so it cannot be limited
+      by resourceNames). Limited to one namespace; no delete.
+  - id: KSV-0056
+    paths: ["k8s/cluster/deployer-rbac.yaml"]
+    statement: >-
+      The blue-green switch is a change to the live Service's selector. The deployer has no
+      access to NetworkPolicies, Ingresses or EndpointSlices, and none outside davine-space.
+  - id: KSV-0113
+    paths: ["k8s/cluster/deployer-rbac.yaml"]
+    statement: >-
+      Limited by resourceNames to the one registry pull secret, ecr-pull, which the admin creates.
+      The deployer cannot create secrets or read any other secret.
+  - id: DS-0026
+    paths: ["jenkins/agent/Dockerfile"]
+    statement: >-
+      Jenkins monitors the agent over its WebSocket connection and marks it offline when it
+      drops; a Docker health check would duplicate that.

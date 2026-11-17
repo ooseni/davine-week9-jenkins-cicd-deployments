@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  K3D_VERSION: v5.9.0
+  K3D_SHA256: 06d8f25bc3a971c4eb29e0ff08429b180402db0f4dec838c9eac427e296800a0
+  KUBECTL_VERSION: v1.36.6
+  KUBECTL_SHA256: 29818b6729dc9262b692307470d0558d027725e738be5dd47c760261868a2634
+
+jobs:
+  checks:
+    name: App tests, scripts, manifests, Terraform, scanners and secrets
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install kubectl (pinned, checksum verified)
+        run: |
+          curl -fsSLo kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          echo "${KUBECTL_SHA256}  kubectl" | sha256sum -c -
+          sudo install -m 0755 kubectl /usr/local/bin/kubectl && rm kubectl
+
+      - name: Lint this workflow with actionlint
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
+
+      - name: App unit tests (pytest in the image's own test stage)
+        run: |
+          docker build -q --target test -t davine-webapp:test app/
+          docker run --rm davine-webapp:test
+
+      - name: App lint (ruff)
+        run: docker run --rm davine-webapp:test sh -c "ruff check . && ruff format --check ."
+
+      - name: Lint the Dockerfiles with hadolint
+        run: |
+          for f in app/Dockerfile jenkins/controller/Dockerfile jenkins/agent/Dockerfile; do
+            echo "$f"; docker run --rm -i hadolint/hadolint:v2.15.1 < "$f"
+          done
+
+      - name: Validate the Kubernetes manifests with kubeconform
+        run: scripts/validate_manifests.sh
+
+      - name: ShellCheck the scripts and tests
+        run: docker run --rm -v "$PWD:/mnt" -w /mnt koalaman/shellcheck:v0.11.0 -x scripts/*.sh tests/*.sh
+
+      - name: Redaction tests
+        run: bash tests/test_redact.sh
+
+      - name: Terraform fmt, validate and tests (mocked AWS provider)
+        run: >-
+          docker run --rm -v "$PWD:/repo" -w /repo/terraform --entrypoint sh hashicorp/terraform:1.17.1 -c
+          "terraform fmt -check -recursive && terraform init -backend=false -input=false && terraform validate && terraform test"
+
+      - name: Lint Terraform with TFLint
+        run: docker run --rm -v "$PWD:/repo" -w /repo/terraform ghcr.io/terraform-linters/tflint:v0.66.0 --format compact
+
+      - name: Scan with Checkov (Terraform, rendered Kubernetes, Dockerfiles)
+        run: |
+          docker run --rm -v "$PWD:/repo" bridgecrew/checkov:3.4.3 -d /repo/terraform --framework terraform --skip-path tests --quiet --compact
+          docker run --rm -v "$PWD:/repo" bridgecrew/checkov:3.4.3 -d /repo --framework kustomize,dockerfile --quiet --compact
+
+      - name: Scan with Trivy (every reason for an ignore is in .trivyignore.yaml)
+        run: >-
+          docker run --rm -v "$PWD:/repo" -w /repo aquasec/trivy:0.76.2
+          config --quiet --exit-code 1 --ignorefile .trivyignore.yaml .
+
+      - name: Scan the history for secrets
+        run: >-
+          docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.30.1
+          git --redact --no-banner /repo
+
+  jenkins:
+    name: Jenkins controller and Jenkinsfile
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Configuration as Code loads, security holds, the linter accepts the Jenkinsfile
+        run: bash tests/test_jenkins.sh
+
+  e2e:
+    name: Rolling, blue-green and rollback on a real cluster (k3d)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install k3d and kubectl (pinned, checksums verified)
+        run: |
+          curl -fsSLo k3d "https://github.com/k3d-io/k3d/releases/download/${K3D_VERSION}/k3d-linux-amd64"
+          echo "${K3D_SHA256}  k3d" | sha256sum -c -
+          curl -fsSLo kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          echo "${KUBECTL_SHA256}  kubectl" | sha256sum -c -
+          sudo install -m 0755 k3d kubectl /usr/local/bin/ && rm k3d kubectl
+
+      - name: Create the cluster, the deployer account and a local registry
+        run: scripts/cluster_up.sh --registry
+
+      - name: Deploy, update under traffic, break, roll back (rolling and blue-green)
+        run: tests/e2e.sh
+
+      - name: Show the cluster if anything failed
+        if: failure()
+        run: |
+          kubectl -n davine-space get all,configmaps,events -o wide || true
