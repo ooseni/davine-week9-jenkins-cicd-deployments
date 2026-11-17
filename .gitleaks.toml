@@ -1,0 +1,11 @@
+# gitleaks settings for this repository: every default rule, plus one narrow exception.
+# Read by the pre-commit hook, the machine-wide hooks and the CI scan.
+title = "davine-week9-jenkins-cicd-deployments"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Jenkins plugin versions (name:version, e.g. 728.v902a_273b_8947) carry git-hash-like suffixes that the generic key rule mistakes for secrets. They are public identifiers from the Jenkins update center. Only that one rule is relaxed, and only for this file."
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)jenkins/controller/plugins\.txt$''']
